@@ -1,0 +1,35 @@
+{
+    "name": "simbiat/db-pool",
+    "type": "library",
+    "keywords": [
+        "pool",
+        "mysql",
+        "pdo",
+        "database",
+        "php"
+    ],
+    "description": "Library to manage database collections in a pool.",
+    "homepage": "https://github.com/Simbiat/db-pool",
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Dmitrii Kustov",
+            "email": "support@simbiat.dev",
+            "homepage": "https://www.simbiat.dev",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Simbiat\\Database\\": "src/"
+        }
+    },
+    "support": {
+        "issues": "https://github.com/Simbiat/db-pool/issues",
+        "source": "https://github.com/Simbiat/db-pool"
+    }
+}
