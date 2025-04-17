@@ -13,12 +13,12 @@ final class Pool
     public static ?array $errors = NULL;
     
     /**
-     * Open database connection
+     * Open a database connection
      *
      * @param \Simbiat\Database\Connection|null $config   Database config object to use for the connection
      * @param int|string|null                   $id       Pool ID, if the connection has already been established, and we want to reuse it
      * @param int                               $maxTries How many times to attempt connection
-     * @param bool                              $throw    Flag indicating whether to throw an exception, if we fail to connect
+     * @param bool                              $throw    Flag indicating whether to throw an exception if we fail to connect
      *
      * @return \PDO|null
      */
@@ -42,7 +42,8 @@ final class Pool
             return self::$activeConnection;
         }
         if ($config !== null) {
-            #Force 'restricted' options to ensure identical set of options
+            #Force 'restricted' options to ensure the identical set of options
+            /** @noinspection UnusedFunctionResultInspection */
             $config->getOptions();
             foreach (self::$pool as $key => $connection) {
                 if ($connection['config'] === $config) {
@@ -96,7 +97,7 @@ final class Pool
     
     
     /**
-     * Enforce some attributes. I've noticed that some of them do not apply when used during initial creation. The most frequent culprit is prepare emulation
+     * Enforce some attributes. I've noticed that some of them do not apply when used during initial creation. The most frequent culprit is EMULATE_PREPARES
      *
      * @param string     $driver Database driver
      * @param int|string $id     Connection ID
@@ -129,7 +130,7 @@ final class Pool
     }
     
     /**
-     * Check if PDO attribute is set to respective value in current connection
+     * Check if a PDO attribute is set to respective value in current connection
      * @param \PDO  $PDO       PDO object
      * @param int   $attribute PDO attribute constant
      * @param mixed $value     Value to compare against
@@ -141,7 +142,7 @@ final class Pool
         try {
             return $PDO->getAttribute($attribute) === $value;
         } catch (\PDOException) {
-            #Means the attribute is not supported, so we will fail to set it anyway. Consider that it is set to expected value, though
+            #Means the attribute is not supported, so we will fail to set it anyway. Consider that it is set to the expected value, though
             return true;
         }
     }
@@ -159,7 +160,8 @@ final class Pool
         if (!empty($id)) {
             unset(self::$pool[$id]);
         } elseif ($config !== null) {
-            #force restricted options to ensure identical set of options
+            #Force restricted options to ensure the identical set of options
+            /** @noinspection UnusedFunctionResultInspection */
             $config->getOptions();
             foreach (self::$pool as $key => $connection) {
                 if ($connection['config'] === $config) {
@@ -183,7 +185,7 @@ final class Pool
     }
     
     /**
-     * Show connections in pool
+     * Show connections in the pool
      * @return array
      */
     public static function showPool(): array

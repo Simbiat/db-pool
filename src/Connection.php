@@ -73,7 +73,7 @@ final class Connection
     }
     
     /**
-     * Get current password. Access allowed only for `openConnection` method from `Pool` class
+     * Get the current password. Access allowed only for the `openConnection` method from `Pool` class
      * @return string
      */
     public function getPassword(): string
@@ -136,7 +136,7 @@ final class Connection
     }
     
     /**
-     * Get current driver
+     * Get the current driver
      * @return string
      */
     public function getDriver(): string
@@ -160,7 +160,7 @@ final class Connection
     }
     
     /**
-     * Get current database name
+     * Get the current database name
      * @return string
      */
     public function getDB(): string
@@ -169,7 +169,7 @@ final class Connection
     }
     
     /**
-     * Set characters set. If empty string, will force utf8mb4.
+     * Set characters set. If an empty string is provided, utf8mb4 will be forced.
      * @param string $charset
      *
      * @return $this
@@ -181,7 +181,7 @@ final class Connection
     }
     
     /**
-     * Get current character set
+     * Get the current character set
      * @return string
      */
     public function getCharset(): string
@@ -190,7 +190,7 @@ final class Connection
     }
     
     /**
-     * Set application name (for DB-Lib only)
+     * Set the application name (for DB-Lib only)
      * @param string $appName
      *
      * @return $this
@@ -202,7 +202,7 @@ final class Connection
     }
     
     /**
-     * Get current application name (for DB-Lib only)
+     * Get the current application name (for DB-Lib only)
      * @return string
      */
     public function getAppName(): string
@@ -224,7 +224,7 @@ final class Connection
     }
     
     /**
-     * Get current role (for Firebird only)
+     * Get the current role (for Firebird only)
      * @return string
      */
     public function getRole(): string
@@ -233,7 +233,7 @@ final class Connection
     }
     
     /**
-     * Set dialect (for Firebird only)
+     * Set the dialect (for Firebird only)
      * @param int $dialect
      *
      * @return $this
@@ -248,7 +248,7 @@ final class Connection
     }
     
     /**
-     * Get current dialect (for Firebird only)
+     * Get the current dialect (for Firebird only)
      * @return string
      */
     public function getDialect(): string
@@ -326,7 +326,7 @@ final class Connection
     }
     
     /**
-     * Get database name in a way compliant with SQLLite, that is either `:memory`, path to a file (if it exists) or empty string (temporary database).
+     * Get the database name in a way compliant with SQLLite, that is either `:memory`, path to a file (if it exists) or empty string (temporary database).
      * @return string
      */
     #[Pure(true)] public function getSQLLite(): string
@@ -345,7 +345,7 @@ final class Connection
     }
     
     /**
-     * Get database name for ODBC
+     * Get the database name for ODBC
      * @return string
      */
     public function getODBC(): string
@@ -414,7 +414,7 @@ final class Connection
     }
     
     /**
-     * Get current set of custom options. Certain options will be forced depending on driver for security and compatibility reasons.
+     * Get the current set of custom options. Certain options will be forced depending on the driver for security and compatibility reasons.
      * @return array
      */
     public function getOptions(): array
