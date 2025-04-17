@@ -92,16 +92,17 @@ final class Connection
     
     /**
      * Set database host
+     *
      * @param string      $host   Host IP or DNS name
      * @param int|null    $port   Host port if not default
      * @param string|null $socket Host socket, if any
      *
      * @return $this
      */
-    public function setHost(string $host = 'localhost', int $port = NULL, string $socket = NULL): self
+    public function setHost(string $host = 'localhost', ?int $port = null, ?string $socket = null): self
     {
         $this->host = (empty($host) ? 'localhost' : $host);
-        $this->port = ($port < 1 || $port > 65535 ? NULL : $port);
+        $this->port = ($port === null || $port < 1 || $port > 65535 ? null : $port);
         $this->socket = $socket;
         return $this;
     }
@@ -237,7 +238,7 @@ final class Connection
      *
      * @return $this
      */
-    public function setDialect(#[ExpectedValues([1, 3])]int $dialect = 3): self
+    public function setDialect(#[ExpectedValues([1, 3])] int $dialect = 3): self
     {
         if ($dialect !== 1 && $dialect !== 3) {
             $dialect = 3;
