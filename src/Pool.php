@@ -131,16 +131,16 @@ final class Pool
     
     /**
      * Check if a PDO attribute is set to respective value in current connection
-     * @param \PDO  $PDO       PDO object
+     * @param \PDO  $pdo       PDO object
      * @param int   $attribute PDO attribute constant
      * @param mixed $value     Value to compare against
      *
      * @return bool
      */
-    public static function checkAttributeValue(\PDO $PDO, int $attribute, mixed $value): bool
+    public static function checkAttributeValue(\PDO $pdo, int $attribute, mixed $value): bool
     {
         try {
-            return $PDO->getAttribute($attribute) === $value;
+            return $pdo->getAttribute($attribute) === $value;
         } catch (\PDOException) {
             #Means the attribute is not supported, so we will fail to set it anyway. Consider that it is set to the expected value, though
             return true;

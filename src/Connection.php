@@ -28,7 +28,7 @@ final class Connection
     private int $dialect = 3;
     private string $sslmode = 'verify-full';
     private string $customString = '';
-    private array $PDOptions = [
+    private array $pdo_options = [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
         \PDO::ATTR_PERSISTENT => false,
         \PDO::ATTR_ORACLE_NULLS => \PDO::NULL_NATURAL,
@@ -409,7 +409,7 @@ final class Connection
         ) {
             throw new \InvalidArgumentException('Attempted to set restricted attribute.');
         }
-        $this->PDOptions[$option] = $value;
+        $this->pdo_options[$option] = $value;
         return $this;
     }
     
@@ -420,16 +420,16 @@ final class Connection
     public function getOptions(): array
     {
         if ($this->getDriver() === 'mysql') {
-            $this->PDOptions[\PDO::MYSQL_ATTR_MULTI_STATEMENTS] = false;
-            $this->PDOptions[\PDO::MYSQL_ATTR_IGNORE_SPACE] = true;
-            $this->PDOptions[\PDO::MYSQL_ATTR_DIRECT_QUERY] = false;
-            $this->PDOptions[\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
+            $this->pdo_options[\PDO::MYSQL_ATTR_MULTI_STATEMENTS] = false;
+            $this->pdo_options[\PDO::MYSQL_ATTR_IGNORE_SPACE] = true;
+            $this->pdo_options[\PDO::MYSQL_ATTR_DIRECT_QUERY] = false;
+            $this->pdo_options[\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
         } elseif ($this->getDriver() === 'sqlsrv') {
-            $this->PDOptions[\PDO::SQLSRV_ATTR_DIRECT_QUERY] = false;
+            $this->pdo_options[\PDO::SQLSRV_ATTR_DIRECT_QUERY] = false;
         }
-        $this->PDOptions[\PDO::ATTR_EMULATE_PREPARES] = true;
-        $this->PDOptions[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
-        return $this->PDOptions;
+        $this->pdo_options[\PDO::ATTR_EMULATE_PREPARES] = true;
+        $this->pdo_options[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
+        return $this->pdo_options;
     }
     
     /**

@@ -84,5 +84,5 @@ Once you have a set of connections in a pool, to get the object for specific one
 
 Class also has `checkAttributeValue`. It's essentially a wrapper for `getAttribute`, but also allows to compare it to a desired value and return a `bool` result:
 ```php
-checkAttributeValue(\PDO $PDO, int $attribute, mixed $value);
+checkAttributeValue(\PDO $pdo, int $attribute, mixed $value);
 ```
