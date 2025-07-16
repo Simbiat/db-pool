@@ -23,11 +23,11 @@ final class Connection
     private ?string $socket = NULL;
     private ?string $dbname = NULL;
     private string $charset = 'utf8mb4';
-    private string $appName = 'PHP Generic DB-lib';
+    private string $app_name = 'PHP Generic DB-lib';
     private ?string $role = NULL;
     private int $dialect = 3;
-    private string $sslmode = 'verify-full';
-    private string $customString = '';
+    private string $ssl_mode = 'verify-full';
+    private string $custom_string = '';
     private array $pdo_options = [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
         \PDO::ATTR_PERSISTENT => false,
@@ -191,13 +191,14 @@ final class Connection
     
     /**
      * Set the application name (for DB-Lib only)
-     * @param string $appName
+     *
+     * @param string $app_name
      *
      * @return $this
      */
-    public function setAppName(string $appName = 'PHP Generic DB-lib'): self
+    public function setAppName(string $app_name = 'PHP Generic DB-lib'): self
     {
-        $this->appName = (empty($appName) ? 'PHP Generic DB-lib' : $appName);
+        $this->app_name = (empty($app_name) ? 'PHP Generic DB-lib' : $app_name);
         return $this;
     }
     
@@ -207,7 +208,7 @@ final class Connection
      */
     public function getAppName(): string
     {
-        return (empty($this->appName) ? '' : 'appname='.$this->appName.';');
+        return (empty($this->app_name) ? '' : 'appname='.$this->app_name.';');
     }
     
     /**
@@ -258,16 +259,17 @@ final class Connection
     
     /**
      * Set SSL mode (for PostgresSQL only)
-     * @param string $sslmode
+     *
+     * @param string $ssl_mode
      *
      * @return $this
      */
-    public function setSSLMode(#[ExpectedValues(['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])] string $sslmode = 'verify-full'): self
+    public function setSSLMode(#[ExpectedValues(['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])] string $ssl_mode = 'verify-full'): self
     {
-        if (!in_array($sslmode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])) {
-            $sslmode = 'verify-full';
+        if (!in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])) {
+            $ssl_mode = 'verify-full';
         }
-        $this->sslmode = $sslmode;
+        $this->ssl_mode = $ssl_mode;
         return $this;
     }
     
@@ -277,20 +279,21 @@ final class Connection
      */
     public function getSSLMode(): string
     {
-        return 'sslmode='.$this->sslmode.';';
+        return 'ssl_mode='.$this->ssl_mode.';';
     }
     
     /**
      * Set custom connection string. `Password`, `Pass`, `PWD`, `UID`, `User ID`, `User`, `Username` fields will be stripped if present.
-     * @param string $customString
+     *
+     * @param string $custom_string
      *
      * @return $this
      */
-    public function setCustomString(string $customString): self
+    public function setCustomString(string $custom_string): self
     {
         #Remove username and password values
-        $customString = preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $customString);
-        $this->customString = $customString;
+        $custom_string = preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $custom_string);
+        $this->custom_string = $custom_string;
         return $this;
     }
     
@@ -300,7 +303,7 @@ final class Connection
      */
     public function getCustomString(): string
     {
-        return $this->customString;
+        return $this->custom_string;
     }
     
     /**

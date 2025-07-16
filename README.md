@@ -28,15 +28,15 @@ The above line is the minimum you will require, and the respective methods in th
   - `setHost(string $host = 'localhost', int $port = NULL, string $socket = NULL)` allows to change host details from default `localhost`. You can pass either respective host name/address with an optional port or socket. Of course, if the path to the socket is provided, the host name and port will be ignored.
   - `setDriver(string $driver = 'mysql')` allows to change the driver from default `mysql` (since most commonly used with PHP).
   - `setCharset(string $charset = 'utf8mb4')` allows to change charset used in the connection. For wider compatibility with modern web `utf8mb4` is used by default.
-  - `setCustomString(string $customString)` allows to pass custom string to be appended to the connection string, essentially custom settings. `Password`, `Pass`, `PWD`, `UID`, `User ID`, `User`, `Username` fields will be stripped if present, since appropriate methods should be used instead and to minimize passing of sensitive data in plain text.
+  - `setCustomString(string $custom_string)` allows to pass custom string to be appended to the connection string, essentially custom settings. `Password`, `Pass`, `PWD`, `UID`, `User ID`, `User`, `Username` fields will be stripped if present, since appropriate methods should be used instead and to minimize passing of sensitive data in plain text.
   - `setOption(int $option, mixed $value)` allows to set custom connection attributes, essentially a wrapper to `PDO`'s native `setAttribute` but with a caveat (more on that below), so refer to official [documentation](https://www.php.net/manual/en/pdo.drivers.php) for the respective driver for available options.
 - DB-Lib only:
-  - `setAppName(string $appName = 'PHP Generic DB-lib')` allows to set custom "App name"
+  - `setAppName(string $app_name = 'PHP Generic DB-lib')` allows to set custom "App name"
 - Firebird only:
   - `setRole(?string $role = null)` allows to set an optional role.
   - `setDialect(int $dialect = 3)` allows to set dialect. Only dialects 1 and 3 are supported due to driver's limitation.
 - PostgresSQL only:
-  - `setSSLMode(string $sslmode = 'verify-full')` allows to customize SSL mode. `disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full` (default) values are supported.
+  - `setSSLMode(string $ssl_mode = 'verify-full')` allows to customize SSL mode. `disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full` (default) values are supported.
 
 All of the above methods can be chained, and all have respective getters (just replace `set` with `get`).
 
@@ -77,7 +77,7 @@ If connection is established successfully you then can get `PDO` object for it b
 
 `openConnection` also support 3 optional parameters:
 - `int|string|null $id = NULL`. Passing ID is not required but will improve your life if you need to juggle multiple connections. If you have an ID, you do not need to keep the original `Connection` object. If no ID is passed, an ID will be generated automatically.
-- `int $maxTries = 1`. Number of retries to establish connection. Set to 1 by default for faster failures.
+- `int $max_tries = 1`. Number of retries to establish connection. Set to 1 by default for faster failures.
 - `bool $throw = true`. Flag indicating whether to throw a `PDOException` if connection fails. If what you are establishing connection for is not critical or failures are handled at a later stage, you can set it to `false`. Details of the errors are stored in `\Simbiat\Database\Pool::$errors`
 
 Once you have a set of connections in a pool, to get the object for specific one, you either send the original `Connection` object or its ID. To change current "active" connection (that is the one returned when `openConnection` is called without parameters) use `changeConnection` in the same manner. `closeConnection` with respective connection details will close it (remove from pool), and to clean the pool entirely use `cleanPool`. Use `showPool()` to see all open connections, including their IDs.

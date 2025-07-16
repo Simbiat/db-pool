@@ -9,37 +9,37 @@ namespace Simbiat\Database;
 final class Pool
 {
     private static array $pool = [];
-    public static ?\PDO $activeConnection = NULL;
+    public static ?\PDO $active_connection = NULL;
     public static ?array $errors = NULL;
     
     /**
      * Open a database connection
      *
-     * @param \Simbiat\Database\Connection|null $config   Database config object to use for the connection
-     * @param int|string|null                   $id       Pool ID, if the connection has already been established, and we want to reuse it
-     * @param int                               $maxTries How many times to attempt connection
-     * @param bool                              $throw    Flag indicating whether to throw an exception if we fail to connect
+     * @param \Simbiat\Database\Connection|null $config    Database config object to use for the connection
+     * @param int|string|null                   $id        Pool ID, if the connection has already been established, and we want to reuse it
+     * @param int                               $max_tries How many times to attempt connection
+     * @param bool                              $throw     Flag indicating whether to throw an exception if we fail to connect
      *
      * @return \PDO|null
      */
-    public static function openConnection(?Connection $config = NULL, int|string|null $id = NULL, int $maxTries = 1, bool $throw = true): ?\PDO
+    public static function openConnection(?Connection $config = NULL, int|string|null $id = NULL, int $max_tries = 1, bool $throw = true): ?\PDO
     {
-        if ($maxTries < 1) {
-            $maxTries = 1;
+        if ($max_tries < 1) {
+            $max_tries = 1;
         }
         if ($config === null && empty($id)) {
             if (empty(self::$pool)) {
                 throw new \UnexpectedValueException('Neither Simbiat\\Database\\Config or ID was provided and there are no connections in pool to work with.');
             }
-            if (empty(self::$activeConnection)) {
+            if (empty(self::$active_connection)) {
                 reset(self::$pool);
                 if (!empty(self::$pool[key(self::$pool)]['connection'])) {
-                    self::$activeConnection = self::$pool[key(self::$pool)]['connection'];
+                    self::$active_connection = self::$pool[key(self::$pool)]['connection'];
                 } else {
                     throw new \UnexpectedValueException('Failed to connect to database server.');
                 }
             }
-            return self::$activeConnection;
+            return self::$active_connection;
         }
         if ($config !== null) {
             #Force 'restricted' options to ensure the identical set of options
@@ -48,7 +48,7 @@ final class Pool
             foreach (self::$pool as $key => $connection) {
                 if ($connection['config'] === $config) {
                     if (isset($connection['connection'])) {
-                        self::$activeConnection = self::$pool[$key]['connection'];
+                        self::$active_connection = self::$pool[$key]['connection'];
                         return self::$pool[$key]['connection'];
                     }
                     $id = $key;
@@ -74,23 +74,23 @@ final class Pool
                         'user' => $config->getUser(),
                         'options' => $config->getOptions(),
                     ];
-                    if ($try === $maxTries) {
+                    if ($try === $max_tries) {
                         self::$pool[$id]['connection'] = NULL;
                         if ($throw) {
                             throw new \PDOException('Failed to connect to database server with error `'.$exception->getMessage().'`', previous: $exception);
                         }
                     }
                 }
-            } while ($try <= $maxTries);
-            self::$activeConnection = self::$pool[$id]['connection'];
-            return self::$activeConnection;
+            } while ($try <= $max_tries);
+            self::$active_connection = self::$pool[$id]['connection'];
+            return self::$active_connection;
         }
         if (!empty($id)) {
             if (isset(self::$pool[$id]['connection'])) {
                 throw new \UnexpectedValueException('No connection with ID `'.$id.'` found.');
             }
-            self::$activeConnection = self::$pool[$id]['connection'];
-            return self::$activeConnection;
+            self::$active_connection = self::$pool[$id]['connection'];
+            return self::$active_connection;
         }
         return NULL;
     }
