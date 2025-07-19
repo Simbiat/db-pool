@@ -79,7 +79,7 @@ final class Connection
     public function getPassword(): string
     {
         #Restricting direct access to password for additional security
-        $caller = debug_backtrace();
+        $caller = \debug_backtrace();
         if (empty($caller[1])) {
             throw new \RuntimeException('Direct call detected. Access denied.');
         }
@@ -292,7 +292,7 @@ final class Connection
     public function setCustomString(string $custom_string): self
     {
         #Remove username and password values
-        $custom_string = preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $custom_string);
+        $custom_string = \preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $custom_string);
         $this->custom_string = $custom_string;
         return $this;
     }
@@ -313,7 +313,7 @@ final class Connection
     public function getIBM(): string
     {
         $dbname = $this->getDB();
-        if (preg_match('/.+\.ini$/ui', $dbname)) {
+        if (\preg_match('/.+\.ini$/ui', $dbname)) {
             return $dbname;
         }
         return 'DRIVER={IBM DB2 ODBC DRIVER};DATABASE='.$dbname.';HOSTNAME='.$this->host.';'.(empty($this->port) ? '' : 'PORT='.$this->port.';').'PROTOCOL=TCPIP;';
@@ -340,7 +340,7 @@ final class Connection
             return $dbname;
         }
         #Check if it's a file that exists
-        if (is_file($dbname)) {
+        if (\is_file($dbname)) {
             return $dbname;
         }
         #Assume temporary database

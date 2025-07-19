@@ -32,9 +32,9 @@ final class Pool
                 throw new \UnexpectedValueException('Neither Simbiat\\Database\\Config or ID was provided and there are no connections in pool to work with.');
             }
             if (empty(self::$active_connection)) {
-                reset(self::$pool);
-                if (!empty(self::$pool[key(self::$pool)]['connection'])) {
-                    self::$active_connection = self::$pool[key(self::$pool)]['connection'];
+                \reset(self::$pool);
+                if (!empty(self::$pool[\key(self::$pool)]['connection'])) {
+                    self::$active_connection = self::$pool[\key(self::$pool)]['connection'];
                 } else {
                     throw new \UnexpectedValueException('Failed to connect to database server.');
                 }
@@ -55,7 +55,7 @@ final class Pool
                 }
             }
             if (empty($id)) {
-                $id = uniqid('', true);
+                $id = \uniqid('', true);
             }
             self::$pool[$id]['config'] = $config;
             #Set counter for tries
