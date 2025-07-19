@@ -29,7 +29,7 @@ final class Pool
         }
         if ($config === null && empty($id)) {
             if (empty(self::$pool)) {
-                throw new \UnexpectedValueException('Neither Simbiat\\Database\\Config or ID was provided and there are no connections in pool to work with.');
+                throw new \UnexpectedValueException('Neither `Simbiat\Database\Config` or ID was provided and there are no connections in pool to work with.');
             }
             if (empty(self::$active_connection)) {
                 \reset(self::$pool);
