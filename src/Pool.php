@@ -9,8 +9,8 @@ namespace Simbiat\Database;
 final class Pool
 {
     private static array $pool = [];
-    public static ?\PDO $active_connection = NULL;
-    public static ?array $errors = NULL;
+    private(set) static ?\PDO $active_connection = NULL;
+    private(set) static ?array $errors = NULL;
     
     /**
      * Open a database connection
