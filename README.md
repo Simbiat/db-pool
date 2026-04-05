@@ -43,10 +43,10 @@ All of the above methods can be chained, and all have respective getters (just r
 #### setOption
 
 While `setOption` is mostly a (kind of) wrapper to `setAttribute`, some settings are forced inside it (or rather `getOptions`):
-- `\PDO::MYSQL_ATTR_MULTI_STATEMENTS` is set to `false` to limit potential of SQL injection.
-- `\PDO::MYSQL_ATTR_IGNORE_SPACE` is set to `true` to limit potential of SQL injection (to make function names reserved).
-- `\PDO::MYSQL_ATTR_DIRECT_QUERY` is set to `false` to force the driver to prepare statements to limit potential of SQL injection.
-- `\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY` is set to `true` to use buffered mode (recommended and default in PDO) to allow potential parallel execution without waiting for server.
+- `\Pdo\Mysql::ATTR_MULTI_STATEMENTS` is set to `false` to limit potential of SQL injection.
+- `\Pdo\Mysql::ATTR_IGNORE_SPACE` is set to `true` to limit potential of SQL injection (to make function names reserved).
+- `\Pdo\Mysql::ATTR_DIRECT_QUERY` is set to `false` to force the driver to prepare statements to limit potential of SQL injection.
+- `\Pdo\Mysql::ATTR_USE_BUFFERED_QUERY` is set to `true` to use buffered mode (recommended and default in PDO) to allow potential parallel execution without waiting for server.
 - `\PDO::SQLSRV_ATTR_DIRECT_QUERY` is set to `false` to force the driver to prepare statements to limit potential of SQL injection.
 - `\PDO::ATTR_EMULATE_PREPARES` is set to `true` to force statements to be prepared on driver level, rather than server potentially allowing to catch errors earlier.
 - `\PDO::ATTR_ERRMODE` is set to `\PDO::ERRMODE_EXCEPTION` to ensure a `PDOException` is thrown in case of issues.

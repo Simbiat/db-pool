@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Simbiat\Database;
 
+use Pdo\Mysql;
+
 /**
  * Database connections pool
  */
@@ -107,14 +109,14 @@ final class Pool
     private static function setAttributes(string $driver, int|string $id): void
     {
         if ($driver === 'mysql') {
-            if (!self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::MYSQL_ATTR_IGNORE_SPACE, true) && !self::$pool[$id]['connection']->setAttribute(\PDO::MYSQL_ATTR_IGNORE_SPACE, true)) {
-                throw new \PDOException('Failed to set `MYSQL_ATTR_IGNORE_SPACE` to `true`.');
+            if (!self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_IGNORE_SPACE, true) && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_IGNORE_SPACE, true)) {
+                throw new \PDOException('Failed to set `ATTR_IGNORE_SPACE` to `true`.');
             }
-            if (!self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::MYSQL_ATTR_DIRECT_QUERY, false) && !self::$pool[$id]['connection']->setAttribute(\PDO::MYSQL_ATTR_DIRECT_QUERY, false)) {
-                throw new \PDOException('Failed to set `MYSQL_ATTR_DIRECT_QUERY` to `false`.');
+            if (!self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_DIRECT_QUERY, false) && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_DIRECT_QUERY, false)) {
+                throw new \PDOException('Failed to set `ATTR_DIRECT_QUERY` to `false`.');
             }
-            if (!self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true) && !self::$pool[$id]['connection']->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
-                throw new \PDOException('Failed to set `MYSQL_ATTR_USE_BUFFERED_QUERY` to `true`.');
+            if (!self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_USE_BUFFERED_QUERY, true) && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_USE_BUFFERED_QUERY, true)) {
+                throw new \PDOException('Failed to set `ATTR_USE_BUFFERED_QUERY` to `true`.');
             }
         } elseif ($driver === 'sqlsrv') {
             if (!self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::SQLSRV_ATTR_DIRECT_QUERY, false) && !self::$pool[$id]['connection']->setAttribute(\PDO::SQLSRV_ATTR_DIRECT_QUERY, false)) {

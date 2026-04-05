@@ -1,13 +1,12 @@
 <?php
-#Supressing cohesion and too many members inspection, since it does not make sense to split them into something separate
-/** @noinspection PhpClassHasTooManyDeclaredMembersInspection */
-/** @noinspection PhpLackOfCohesionInspection */
+#Suppressing cohesion and too many members inspection, since it does not make sense to split them into something separate
 declare(strict_types = 1);
 
 namespace Simbiat\Database;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\Pure;
+use Pdo\Mysql;
 use function in_array;
 
 /**
@@ -44,7 +43,7 @@ final class Connection
      */
     public function setUser(#[\SensitiveParameter] string $user): self
     {
-        if (empty($user)) {
+        if (\preg_match('/^\s*$/u', $user) === 1) {
             throw new \InvalidArgumentException('Attempted to set empty user.');
         }
         $this->user = $user;
@@ -52,12 +51,12 @@ final class Connection
     }
     
     /**
-     * Get current database user
+     * Get the current database user
      * @return string
      */
     public function getUser(): string
     {
-        return (empty($this->user) ? '' : $this->user);
+        return ($this->user ?? '');
     }
     
     /**
@@ -87,7 +86,7 @@ final class Connection
         if ($caller['function'] !== 'openConnection' || $caller['class'] !== 'Simbiat\\Database\\Pool') {
             throw new \RuntimeException('Call from non-allowed function or object-type detected. Access denied.');
         }
-        return (empty($this->password) ? '' : $this->password);
+        return ($this->password ?? '');
     }
     
     /**
@@ -101,7 +100,7 @@ final class Connection
      */
     public function setHost(string $host = 'localhost', ?int $port = null, ?string $socket = null): self
     {
-        $this->host = (empty($host) ? 'localhost' : $host);
+        $this->host = (\preg_match('/^\s*$/u', $host) === 1 ? 'localhost' : $host);
         $this->port = ($port === null || $port < 1 || $port > 65535 ? null : $port);
         $this->socket = $socket;
         return $this;
@@ -113,7 +112,7 @@ final class Connection
      */
     public function getHost(): string
     {
-        if (empty($this->socket)) {
+        if ($this->socket === null || $this->socket === '') {
             return 'host='.$this->host.';'.(empty($this->port) ? '' : 'port='.$this->port.';');
         }
         return 'unix_socket='.$this->socket.';';
@@ -141,7 +140,7 @@ final class Connection
      */
     public function getDriver(): string
     {
-        return (empty($this->driver) ? '' : $this->driver);
+        return $this->driver;
     }
     
     /**
@@ -152,7 +151,7 @@ final class Connection
      */
     public function setDB(string $dbname): self
     {
-        if (empty($dbname)) {
+        if (\preg_match('/^\s*$/u', $dbname) === 1) {
             throw new \InvalidArgumentException('Attempted to set empty database name.');
         }
         $this->dbname = $dbname;
@@ -165,18 +164,18 @@ final class Connection
      */
     public function getDB(): string
     {
-        return (empty($this->dbname) ? '' : 'dbname='.$this->dbname.';');
+        return (($this->dbname === null || $this->dbname === '') ? '' : 'dbname='.$this->dbname.';');
     }
     
     /**
-     * Set characters set. If an empty string is provided, utf8mb4 will be forced.
+     * Set the character set. If an empty string is provided, utf8mb4 will be forced.
      * @param string $charset
      *
      * @return $this
      */
     public function setCharset(string $charset = 'utf8mb4'): self
     {
-        $this->charset = (empty($charset) ? 'utf8mb4' : $charset);
+        $this->charset = (\preg_match('/^\s*$/u', $charset) === 1 ? 'utf8mb4' : $charset);
         return $this;
     }
     
@@ -186,7 +185,7 @@ final class Connection
      */
     public function getCharset(): string
     {
-        return (empty($this->charset) ? '' : 'charset='.$this->charset.';');
+        return (\preg_match('/^\s*$/u', $this->charset) === 1 ? '' : 'charset='.$this->charset.';');
     }
     
     /**
@@ -198,7 +197,7 @@ final class Connection
      */
     public function setAppName(string $app_name = 'PHP Generic DB-lib'): self
     {
-        $this->app_name = (empty($app_name) ? 'PHP Generic DB-lib' : $app_name);
+        $this->app_name = (\preg_match('/^\s*$/u', $app_name) === 1 ? 'PHP Generic DB-lib' : $app_name);
         return $this;
     }
     
@@ -208,7 +207,7 @@ final class Connection
      */
     public function getAppName(): string
     {
-        return (empty($this->app_name) ? '' : 'appname='.$this->app_name.';');
+        return (\preg_match('/^\s*$/u', $this->app_name) === 1 ? '' : 'appname='.$this->app_name.';');
     }
     
     /**
@@ -220,7 +219,7 @@ final class Connection
      */
     public function setRole(?string $role = null): self
     {
-        $this->role = (empty($role) ? null : $role);
+        $this->role = (\preg_match('/^\s*$/u', (string)$role) === 1 ? null : $role);
         return $this;
     }
     
@@ -230,7 +229,7 @@ final class Connection
      */
     public function getRole(): string
     {
-        return (empty($this->role) ? '' : 'role='.$this->role.';');
+        return (\preg_match('/^\s*$/u', (string)$this->role) === 1 ? '' : 'role='.$this->role.';');
     }
     
     /**
@@ -298,7 +297,7 @@ final class Connection
     }
     
     /**
-     * Get current custom connection string
+     * Get the current custom connection string
      * @return string
      */
     public function getCustomString(): string
@@ -332,7 +331,8 @@ final class Connection
      * Get the database name in a way compliant with SQLLite, that is either `:memory`, path to a file (if it exists) or empty string (temporary database).
      * @return string
      */
-    #[Pure(true)] public function getSQLLite(): string
+    #[Pure(true)]
+    public function getSQLLite(): string
     {
         $dbname = $this->getDB();
         #Check if we are using in-memory DB
@@ -408,7 +408,7 @@ final class Connection
             ||
             ($this->getDriver() === 'sqlsrv' && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY)
             ||
-            ($this->getDriver() === 'mysql' && in_array($option, [\PDO::MYSQL_ATTR_MULTI_STATEMENTS, \PDO::MYSQL_ATTR_DIRECT_QUERY, \PDO::MYSQL_ATTR_IGNORE_SPACE, \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY], true))
+            ($this->getDriver() === 'mysql' && in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], true))
         ) {
             throw new \InvalidArgumentException('Attempted to set restricted attribute.');
         }
@@ -423,10 +423,10 @@ final class Connection
     public function getOptions(): array
     {
         if ($this->getDriver() === 'mysql') {
-            $this->pdo_options[\PDO::MYSQL_ATTR_MULTI_STATEMENTS] = false;
-            $this->pdo_options[\PDO::MYSQL_ATTR_IGNORE_SPACE] = true;
-            $this->pdo_options[\PDO::MYSQL_ATTR_DIRECT_QUERY] = false;
-            $this->pdo_options[\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
+            $this->pdo_options[Mysql::ATTR_MULTI_STATEMENTS] = false;
+            $this->pdo_options[Mysql::ATTR_IGNORE_SPACE] = true;
+            $this->pdo_options[Mysql::ATTR_DIRECT_QUERY] = false;
+            $this->pdo_options[Mysql::ATTR_USE_BUFFERED_QUERY] = true;
         } elseif ($this->getDriver() === 'sqlsrv') {
             $this->pdo_options[\PDO::SQLSRV_ATTR_DIRECT_QUERY] = false;
         }
