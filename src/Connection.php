@@ -7,6 +7,7 @@ namespace Simbiat\Database;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\Pure;
 use Pdo\Mysql;
+use Simbiat\StringHelpers\Sanitize;
 use function in_array;
 
 /**
@@ -43,7 +44,7 @@ final class Connection
      */
     public function setUser(#[\SensitiveParameter] string $user): self
     {
-        if (\preg_match('/^\s*$/u', $user) === 1) {
+        if (Sanitize::whiteString($user)) {
             throw new \InvalidArgumentException('Attempted to set empty user.');
         }
         $this->user = $user;
@@ -100,7 +101,7 @@ final class Connection
      */
     public function setHost(string $host = 'localhost', ?int $port = null, ?string $socket = null): self
     {
-        $this->host = (\preg_match('/^\s*$/u', $host) === 1 ? 'localhost' : $host);
+        $this->host = (Sanitize::whiteString($host) ? 'localhost' : $host);
         $this->port = ($port === null || $port < 1 || $port > 65535 ? null : $port);
         $this->socket = $socket;
         return $this;
@@ -151,7 +152,7 @@ final class Connection
      */
     public function setDB(string $dbname): self
     {
-        if (\preg_match('/^\s*$/u', $dbname) === 1) {
+        if (Sanitize::whiteString($dbname)) {
             throw new \InvalidArgumentException('Attempted to set empty database name.');
         }
         $this->dbname = $dbname;
@@ -175,7 +176,7 @@ final class Connection
      */
     public function setCharset(string $charset = 'utf8mb4'): self
     {
-        $this->charset = (\preg_match('/^\s*$/u', $charset) === 1 ? 'utf8mb4' : $charset);
+        $this->charset = (Sanitize::whiteString($charset) ? 'utf8mb4' : $charset);
         return $this;
     }
     
@@ -185,7 +186,7 @@ final class Connection
      */
     public function getCharset(): string
     {
-        return (\preg_match('/^\s*$/u', $this->charset) === 1 ? '' : 'charset='.$this->charset.';');
+        return (Sanitize::whiteString($this->charset) ? '' : 'charset='.$this->charset.';');
     }
     
     /**
@@ -197,7 +198,7 @@ final class Connection
      */
     public function setAppName(string $app_name = 'PHP Generic DB-lib'): self
     {
-        $this->app_name = (\preg_match('/^\s*$/u', $app_name) === 1 ? 'PHP Generic DB-lib' : $app_name);
+        $this->app_name = (Sanitize::whiteString($app_name) ? 'PHP Generic DB-lib' : $app_name);
         return $this;
     }
     
@@ -207,7 +208,7 @@ final class Connection
      */
     public function getAppName(): string
     {
-        return (\preg_match('/^\s*$/u', $this->app_name) === 1 ? '' : 'appname='.$this->app_name.';');
+        return (Sanitize::whiteString($this->app_name) ? '' : 'appname='.$this->app_name.';');
     }
     
     /**
@@ -219,7 +220,7 @@ final class Connection
      */
     public function setRole(?string $role = null): self
     {
-        $this->role = (\preg_match('/^\s*$/u', (string)$role) === 1 ? null : $role);
+        $this->role = (Sanitize::whiteString((string)$role) ? null : $role);
         return $this;
     }
     
@@ -229,7 +230,7 @@ final class Connection
      */
     public function getRole(): string
     {
-        return (\preg_match('/^\s*$/u', (string)$this->role) === 1 ? '' : 'role='.$this->role.';');
+        return (Sanitize::whiteString((string)$this->role) ? '' : 'role='.$this->role.';');
     }
     
     /**
