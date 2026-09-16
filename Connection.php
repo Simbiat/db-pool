@@ -1,6 +1,6 @@
 <?php
-#Suppressing cohesion and too many members inspection, since it does not make sense to split them into something separate
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Simbiat\Database;
 
@@ -35,7 +35,7 @@ final class Connection
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         \PDO::ATTR_EMULATE_PREPARES => true,
     ];
-    
+
     /**
      * Set database user
      * @param string $user
@@ -50,7 +50,7 @@ final class Connection
         $this->user = $user;
         return $this;
     }
-    
+
     /**
      * Get the current database user
      * @return string
@@ -59,7 +59,7 @@ final class Connection
     {
         return ($this->user ?? '');
     }
-    
+
     /**
      * Set database password
      * @param string $password
@@ -71,14 +71,14 @@ final class Connection
         $this->password = $password;
         return $this;
     }
-    
+
     /**
      * Get the current password. Access allowed only for the `openConnection` method from `Pool` class
      * @return string
      */
     public function getPassword(): string
     {
-        #Restricting direct access to password for additional security
+        // Restricting direct access to password for additional security
         $caller = \debug_backtrace();
         if (empty($caller[1])) {
             throw new \RuntimeException('Direct call detected. Access denied.');
@@ -89,7 +89,7 @@ final class Connection
         }
         return ($this->password ?? '');
     }
-    
+
     /**
      * Set database host
      *
@@ -106,7 +106,7 @@ final class Connection
         $this->socket = $socket;
         return $this;
     }
-    
+
     /**
      * Get current host setup
      * @return string
@@ -118,7 +118,7 @@ final class Connection
         }
         return 'unix_socket='.$this->socket.';';
     }
-    
+
     /**
      * Set what PDO driver to use
      * @param string $driver
@@ -134,7 +134,7 @@ final class Connection
         }
         return $this;
     }
-    
+
     /**
      * Get the current driver
      * @return string
@@ -143,7 +143,7 @@ final class Connection
     {
         return $this->driver;
     }
-    
+
     /**
      * Set database name
      * @param string $dbname
@@ -158,7 +158,7 @@ final class Connection
         $this->dbname = $dbname;
         return $this;
     }
-    
+
     /**
      * Get the current database name
      * @return string
@@ -167,7 +167,7 @@ final class Connection
     {
         return (($this->dbname === null || $this->dbname === '') ? '' : 'dbname='.$this->dbname.';');
     }
-    
+
     /**
      * Set the character set. If an empty string is provided, utf8mb4 will be forced.
      * @param string $charset
@@ -179,7 +179,7 @@ final class Connection
         $this->charset = (Sanitize::whiteString($charset) ? 'utf8mb4' : $charset);
         return $this;
     }
-    
+
     /**
      * Get the current character set
      * @return string
@@ -188,7 +188,7 @@ final class Connection
     {
         return (Sanitize::whiteString($this->charset) ? '' : 'charset='.$this->charset.';');
     }
-    
+
     /**
      * Set the application name (for DB-Lib only)
      *
@@ -201,7 +201,7 @@ final class Connection
         $this->app_name = (Sanitize::whiteString($app_name) ? 'PHP Generic DB-lib' : $app_name);
         return $this;
     }
-    
+
     /**
      * Get the current application name (for DB-Lib only)
      * @return string
@@ -210,7 +210,7 @@ final class Connection
     {
         return (Sanitize::whiteString($this->app_name) ? '' : 'appname='.$this->app_name.';');
     }
-    
+
     /**
      * Set role (for Firebird only)
      *
@@ -223,7 +223,7 @@ final class Connection
         $this->role = (Sanitize::whiteString((string)$role) ? null : $role);
         return $this;
     }
-    
+
     /**
      * Get the current role (for Firebird only)
      * @return string
@@ -232,7 +232,7 @@ final class Connection
     {
         return (Sanitize::whiteString((string)$this->role) ? '' : 'role='.$this->role.';');
     }
-    
+
     /**
      * Set the dialect (for Firebird only)
      * @param int $dialect
@@ -247,7 +247,7 @@ final class Connection
         $this->dialect = $dialect;
         return $this;
     }
-    
+
     /**
      * Get the current dialect (for Firebird only)
      * @return string
@@ -256,7 +256,7 @@ final class Connection
     {
         return 'dialect='.$this->dialect.';';
     }
-    
+
     /**
      * Set SSL mode (for PostgresSQL only)
      *
@@ -272,7 +272,7 @@ final class Connection
         $this->ssl_mode = $ssl_mode;
         return $this;
     }
-    
+
     /**
      * Get current SSL mode (for PostgresSQL only)
      * @return string
@@ -281,7 +281,7 @@ final class Connection
     {
         return 'ssl_mode='.$this->ssl_mode.';';
     }
-    
+
     /**
      * Set custom connection string. `Password`, `Pass`, `PWD`, `UID`, `User ID`, `User`, `Username` fields will be stripped if present.
      *
@@ -291,12 +291,12 @@ final class Connection
      */
     public function setCustomString(string $custom_string): self
     {
-        #Remove username and password values
+        // Remove username and password values
         $custom_string = \preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $custom_string);
         $this->custom_string = $custom_string;
         return $this;
     }
-    
+
     /**
      * Get the current custom connection string
      * @return string
@@ -305,7 +305,7 @@ final class Connection
     {
         return $this->custom_string;
     }
-    
+
     /**
      * Get IBM specific connection string
      * @return string
@@ -318,7 +318,7 @@ final class Connection
         }
         return 'DRIVER={IBM DB2 ODBC DRIVER};DATABASE='.$dbname.';HOSTNAME='.$this->host.';'.(empty($this->port) ? '' : 'PORT='.$this->port.';').'PROTOCOL=TCPIP;';
     }
-    
+
     /**
      * Get Informix specific connection string
      * @return string
@@ -327,7 +327,7 @@ final class Connection
     {
         return 'host='.$this->host.';'.(empty($this->port) ? '' : 'service='.$this->port.';').'database='.$this->dbname.';protocol=onsoctcp;EnableScrollableCursors=1;';
     }
-    
+
     /**
      * Get the database name in a way compliant with SQLLite, that is either `:memory`, path to a file (if it exists) or empty string (temporary database).
      * @return string
@@ -336,18 +336,18 @@ final class Connection
     public function getSQLLite(): string
     {
         $dbname = $this->getDB();
-        #Check if we are using in-memory DB
+        // Check if we are using in-memory DB
         if ($dbname === ':memory:') {
             return $dbname;
         }
-        #Check if it's a file that exists
+        // Check if it's a file that exists
         if (\is_file($dbname)) {
             return $dbname;
         }
-        #Assume temporary database
+        // Assume temporary database
         return '';
     }
-    
+
     /**
      * Get the database name for ODBC
      * @return string
@@ -356,7 +356,7 @@ final class Connection
     {
         return $this->dbname ?? '';
     }
-    
+
     /**
      * Get connection string for MS SQL Server
      * @return string
@@ -365,7 +365,7 @@ final class Connection
     {
         return 'Server='.$this->host.(empty($this->port) ? '' : ','.$this->port).';Database='.$this->dbname;
     }
-    
+
     /**
      * Get Data Source Name (DSN) string based on current settings
      * @return string
@@ -389,12 +389,12 @@ final class Connection
             default => null,
         };
         if ($dsn) {
-            #Return DSN while adding any custom values
+            // Return DSN while adding any custom values
             return $dsn.$this->getCustomString();
         }
         throw new \UnexpectedValueException('Unsupported driver.');
     }
-    
+
     /**
      * Set custom options to use during establishing connection
      * @param int   $option Appropriate `\PDO::*` constant
@@ -416,7 +416,7 @@ final class Connection
         $this->pdo_options[$option] = $value;
         return $this;
     }
-    
+
     /**
      * Get the current set of custom options. Certain options will be forced depending on the driver for security and compatibility reasons.
      * @return array
@@ -435,7 +435,7 @@ final class Connection
         $this->pdo_options[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
         return $this->pdo_options;
     }
-    
+
     /**
      * Prevent properties from showing in var_dump and print_r for additional security
      * @return array

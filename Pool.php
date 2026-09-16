@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Simbiat\Database;
 
@@ -13,7 +14,7 @@ final class Pool
     private static array $pool = [];
     private(set) static ?\PDO $active_connection = NULL;
     private(set) static ?array $errors = NULL;
-    
+
     /**
      * Open a database connection
      *
@@ -44,7 +45,7 @@ final class Pool
             return self::$active_connection;
         }
         if ($config !== null) {
-            #Force 'restricted' options to ensure the identical set of options
+            // Force 'restricted' options to ensure the identical set of options
             /** @noinspection UnusedFunctionResultInspection */
             $config->getOptions();
             foreach (self::$pool as $key => $connection) {
@@ -60,10 +61,10 @@ final class Pool
                 $id = \uniqid('', true);
             }
             self::$pool[$id]['config'] = $config;
-            #Set counter for tries
+            // Set counter for tries
             $try = 0;
             do {
-                #Indicate actual try
+                // Indicate actual try
                 $try++;
                 try {
                     self::$pool[$id]['connection'] = new \PDO($config->getDSN(), $config->getUser(), $config->getPassword(), $config->getOptions());
@@ -96,8 +97,8 @@ final class Pool
         }
         return NULL;
     }
-    
-    
+
+
     /**
      * Enforce some attributes. I've noticed that some of them do not apply when used during initial creation. The most frequent culprit is EMULATE_PREPARES
      *
@@ -130,7 +131,7 @@ final class Pool
             throw new \PDOException('Failed to set `ATTR_ERRMODE` to exception mode.');
         }
     }
-    
+
     /**
      * Check if a PDO attribute is set to respective value in current connection
      * @param \PDO  $pdo       PDO object
@@ -144,11 +145,11 @@ final class Pool
         try {
             return $pdo->getAttribute($attribute) === $value;
         } catch (\PDOException) {
-            #Means the attribute is not supported, so we will fail to set it anyway. Consider that it is set to the expected value, though
+            // Means the attribute is not supported, so we will fail to set it anyway. Consider that it is set to the expected value, though
             return true;
         }
     }
-    
+
     /**
      * Close connection using either connection ID or database config object
      *
@@ -162,7 +163,7 @@ final class Pool
         if (!empty($id)) {
             unset(self::$pool[$id]);
         } elseif ($config !== null) {
-            #Force restricted options to ensure the identical set of options
+            // Force restricted options to ensure the identical set of options
             /** @noinspection UnusedFunctionResultInspection */
             $config->getOptions();
             foreach (self::$pool as $key => $connection) {
@@ -172,7 +173,7 @@ final class Pool
             }
         }
     }
-    
+
     /**
      * Switch to a different database connection using either connection ID or database config object
      *
@@ -185,7 +186,7 @@ final class Pool
     {
         return self::openConnection($config, $id);
     }
-    
+
     /**
      * Show connections in the pool
      * @return array
@@ -194,7 +195,7 @@ final class Pool
     {
         return self::$pool;
     }
-    
+
     /**
      * Clean the pool
      * @return void
