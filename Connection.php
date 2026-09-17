@@ -127,7 +127,7 @@ final class Connection
      */
     public function setDriver(string $driver = 'mysql'): self
     {
-        if (in_array($driver, \PDO::getAvailableDrivers(), true)) {
+        if (\in_array($driver, \PDO::getAvailableDrivers(), true)) {
             $this->driver = $driver;
         } else {
             throw new \InvalidArgumentException('Attempted to set unsupported driver.');
@@ -220,7 +220,7 @@ final class Connection
      */
     public function setRole(?string $role = null): self
     {
-        $this->role = (Sanitize::whiteString((string)$role) ? null : $role);
+        $this->role = (Sanitize::whiteString((string) $role) ? null : $role);
         return $this;
     }
 
@@ -230,7 +230,7 @@ final class Connection
      */
     public function getRole(): string
     {
-        return (Sanitize::whiteString((string)$this->role) ? '' : 'role='.$this->role.';');
+        return (Sanitize::whiteString((string) $this->role) ? '' : 'role='.$this->role.';');
     }
 
     /**
@@ -266,7 +266,7 @@ final class Connection
      */
     public function setSSLMode(#[ExpectedValues(['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])] string $ssl_mode = 'verify-full'): self
     {
-        if (!in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])) {
+        if (!\in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])) {
             $ssl_mode = 'verify-full';
         }
         $this->ssl_mode = $ssl_mode;
@@ -405,11 +405,11 @@ final class Connection
     public function setOption(int $option, mixed $value): self
     {
         if (
-            in_array($option, [\PDO::ATTR_ERRMODE, \PDO::ATTR_EMULATE_PREPARES], true)
+            \in_array($option, [\PDO::ATTR_ERRMODE, \PDO::ATTR_EMULATE_PREPARES], true)
             ||
             ($this->getDriver() === 'sqlsrv' && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY)
             ||
-            ($this->getDriver() === 'mysql' && in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], true))
+            ($this->getDriver() === 'mysql' && \in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], true))
         ) {
             throw new \InvalidArgumentException('Attempted to set restricted attribute.');
         }
