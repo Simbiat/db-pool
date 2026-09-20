@@ -8,23 +8,22 @@ use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\Pure;
 use Pdo\Mysql;
 use Simbiat\StringHelpers\Sanitize;
-use function in_array;
 
 /**
  * Database configuration
  */
 final class Connection
 {
-    private ?string $user = NULL;
-    private ?string $password = NULL;
+    private ?string $user = null;
+    private ?string $password = null;
     private string $driver = 'mysql';
     private string $host = 'localhost';
-    private ?int $port = NULL;
-    private ?string $socket = NULL;
-    private ?string $dbname = NULL;
+    private ?int $port = null;
+    private ?string $socket = null;
+    private ?string $dbname = null;
     private string $charset = 'utf8mb4';
     private string $app_name = 'PHP Generic DB-lib';
-    private ?string $role = NULL;
+    private ?string $role = null;
     private int $dialect = 3;
     private string $ssl_mode = 'verify-full';
     private string $custom_string = '';
@@ -38,6 +37,7 @@ final class Connection
 
     /**
      * Set database user
+     *
      * @param string $user
      *
      * @return $this
@@ -48,11 +48,13 @@ final class Connection
             throw new \InvalidArgumentException('Attempted to set empty user.');
         }
         $this->user = $user;
+
         return $this;
     }
 
     /**
      * Get the current database user
+     *
      * @return string
      */
     public function getUser(): string
@@ -62,6 +64,7 @@ final class Connection
 
     /**
      * Set database password
+     *
      * @param string $password
      *
      * @return $this
@@ -69,11 +72,13 @@ final class Connection
     public function setPassword(#[\SensitiveParameter] string $password = ''): self
     {
         $this->password = $password;
+
         return $this;
     }
 
     /**
      * Get the current password. Access allowed only for the `openConnection` method from `Pool` class
+     *
      * @return string
      */
     public function getPassword(): string
@@ -84,9 +89,13 @@ final class Connection
             throw new \RuntimeException('Direct call detected. Access denied.');
         }
         $caller = $caller[1];
-        if ($caller['function'] !== 'openConnection' || $caller['class'] !== 'Simbiat\\Database\\Pool') {
+        if (
+            $caller['function'] !== 'openConnection'
+            || $caller['class'] !== 'Simbiat\\Database\\Pool'
+        ) {
             throw new \RuntimeException('Call from non-allowed function or object-type detected. Access denied.');
         }
+
         return ($this->password ?? '');
     }
 
@@ -104,23 +113,30 @@ final class Connection
         $this->host = (Sanitize::whiteString($host) ? 'localhost' : $host);
         $this->port = ($port === null || $port < 1 || $port > 65535 ? null : $port);
         $this->socket = $socket;
+
         return $this;
     }
 
     /**
      * Get current host setup
+     *
      * @return string
      */
     public function getHost(): string
     {
-        if ($this->socket === null || $this->socket === '') {
+        if (
+            $this->socket === null
+            || $this->socket === ''
+        ) {
             return 'host='.$this->host.';'.(empty($this->port) ? '' : 'port='.$this->port.';');
         }
+
         return 'unix_socket='.$this->socket.';';
     }
 
     /**
      * Set what PDO driver to use
+     *
      * @param string $driver
      *
      * @return $this
@@ -132,11 +148,13 @@ final class Connection
         } else {
             throw new \InvalidArgumentException('Attempted to set unsupported driver.');
         }
+
         return $this;
     }
 
     /**
      * Get the current driver
+     *
      * @return string
      */
     public function getDriver(): string
@@ -146,6 +164,7 @@ final class Connection
 
     /**
      * Set database name
+     *
      * @param string $dbname
      *
      * @return $this
@@ -156,20 +175,23 @@ final class Connection
             throw new \InvalidArgumentException('Attempted to set empty database name.');
         }
         $this->dbname = $dbname;
+
         return $this;
     }
 
     /**
      * Get the current database name
+     *
      * @return string
      */
     public function getDB(): string
     {
-        return (($this->dbname === null || $this->dbname === '') ? '' : 'dbname='.$this->dbname.';');
+        return ($this->dbname === null || $this->dbname === '' ? '' : 'dbname='.$this->dbname.';');
     }
 
     /**
      * Set the character set. If an empty string is provided, utf8mb4 will be forced.
+     *
      * @param string $charset
      *
      * @return $this
@@ -177,11 +199,13 @@ final class Connection
     public function setCharset(string $charset = 'utf8mb4'): self
     {
         $this->charset = (Sanitize::whiteString($charset) ? 'utf8mb4' : $charset);
+
         return $this;
     }
 
     /**
      * Get the current character set
+     *
      * @return string
      */
     public function getCharset(): string
@@ -199,11 +223,13 @@ final class Connection
     public function setAppName(string $app_name = 'PHP Generic DB-lib'): self
     {
         $this->app_name = (Sanitize::whiteString($app_name) ? 'PHP Generic DB-lib' : $app_name);
+
         return $this;
     }
 
     /**
      * Get the current application name (for DB-Lib only)
+     *
      * @return string
      */
     public function getAppName(): string
@@ -221,11 +247,13 @@ final class Connection
     public function setRole(?string $role = null): self
     {
         $this->role = (Sanitize::whiteString((string) $role) ? null : $role);
+
         return $this;
     }
 
     /**
      * Get the current role (for Firebird only)
+     *
      * @return string
      */
     public function getRole(): string
@@ -235,21 +263,27 @@ final class Connection
 
     /**
      * Set the dialect (for Firebird only)
+     *
      * @param int $dialect
      *
      * @return $this
      */
     public function setDialect(#[ExpectedValues([1, 3])] int $dialect = 3): self
     {
-        if ($dialect !== 1 && $dialect !== 3) {
+        if (
+            $dialect !== 1
+            && $dialect !== 3
+        ) {
             $dialect = 3;
         }
         $this->dialect = $dialect;
+
         return $this;
     }
 
     /**
      * Get the current dialect (for Firebird only)
+     *
      * @return string
      */
     public function getDialect(): string
@@ -270,11 +304,13 @@ final class Connection
             $ssl_mode = 'verify-full';
         }
         $this->ssl_mode = $ssl_mode;
+
         return $this;
     }
 
     /**
      * Get current SSL mode (for PostgresSQL only)
+     *
      * @return string
      */
     public function getSSLMode(): string
@@ -294,11 +330,13 @@ final class Connection
         // Remove username and password values
         $custom_string = \preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $custom_string);
         $this->custom_string = $custom_string;
+
         return $this;
     }
 
     /**
      * Get the current custom connection string
+     *
      * @return string
      */
     public function getCustomString(): string
@@ -308,6 +346,7 @@ final class Connection
 
     /**
      * Get IBM specific connection string
+     *
      * @return string
      */
     public function getIBM(): string
@@ -316,11 +355,13 @@ final class Connection
         if (\preg_match('/.+\.ini$/ui', $dbname)) {
             return $dbname;
         }
+
         return 'DRIVER={IBM DB2 ODBC DRIVER};DATABASE='.$dbname.';HOSTNAME='.$this->host.';'.(empty($this->port) ? '' : 'PORT='.$this->port.';').'PROTOCOL=TCPIP;';
     }
 
     /**
      * Get Informix specific connection string
+     *
      * @return string
      */
     public function getInformix(): string
@@ -330,6 +371,7 @@ final class Connection
 
     /**
      * Get the database name in a way compliant with SQLLite, that is either `:memory`, path to a file (if it exists) or empty string (temporary database).
+     *
      * @return string
      */
     #[Pure(true)]
@@ -344,12 +386,14 @@ final class Connection
         if (\is_file($dbname)) {
             return $dbname;
         }
+
         // Assume temporary database
         return '';
     }
 
     /**
      * Get the database name for ODBC
+     *
      * @return string
      */
     public function getODBC(): string
@@ -359,6 +403,7 @@ final class Connection
 
     /**
      * Get connection string for MS SQL Server
+     *
      * @return string
      */
     public function getSQLServer(): string
@@ -368,6 +413,7 @@ final class Connection
 
     /**
      * Get Data Source Name (DSN) string based on current settings
+     *
      * @return string
      */
     public function getDSN(): string
@@ -392,11 +438,13 @@ final class Connection
             // Return DSN while adding any custom values
             return $dsn.$this->getCustomString();
         }
+
         throw new \UnexpectedValueException('Unsupported driver.');
     }
 
     /**
      * Set custom options to use during establishing connection
+     *
      * @param int   $option Appropriate `\PDO::*` constant
      * @param mixed $value  Value for the option
      *
@@ -414,11 +462,13 @@ final class Connection
             throw new \InvalidArgumentException('Attempted to set restricted attribute.');
         }
         $this->pdo_options[$option] = $value;
+
         return $this;
     }
 
     /**
      * Get the current set of custom options. Certain options will be forced depending on the driver for security and compatibility reasons.
+     *
      * @return array
      */
     public function getOptions(): array
@@ -433,11 +483,13 @@ final class Connection
         }
         $this->pdo_options[\PDO::ATTR_EMULATE_PREPARES] = true;
         $this->pdo_options[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
+
         return $this->pdo_options;
     }
 
     /**
      * Prevent properties from showing in var_dump and print_r for additional security
+     *
      * @return array
      */
     public function __debugInfo(): array

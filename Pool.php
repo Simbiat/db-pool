@@ -12,8 +12,8 @@ use Pdo\Mysql;
 final class Pool
 {
     private static array $pool = [];
-    private(set) static ?\PDO $active_connection = NULL;
-    private(set) static ?array $errors = NULL;
+    private(set) static ?\PDO $active_connection = null;
+    private(set) static ?array $errors = null;
 
     /**
      * Open a database connection
@@ -25,12 +25,15 @@ final class Pool
      *
      * @return \PDO|null
      */
-    public static function openConnection(?Connection $config = NULL, int|string|null $id = NULL, int $max_tries = 1, bool $throw = true): ?\PDO
+    public static function openConnection(?Connection $config = null, int|string|null $id = null, int $max_tries = 1, bool $throw = true): ?\PDO
     {
         if ($max_tries < 1) {
             $max_tries = 1;
         }
-        if ($config === null && empty($id)) {
+        if (
+            $config === null
+            && empty($id)
+        ) {
             if (empty(self::$pool)) {
                 throw new \UnexpectedValueException('Neither `Simbiat\Database\Config` or ID was provided and there are no connections in pool to work with.');
             }
@@ -42,6 +45,7 @@ final class Pool
                     throw new \UnexpectedValueException('Failed to connect to database server.');
                 }
             }
+
             return self::$active_connection;
         }
         if ($config !== null) {
@@ -52,6 +56,7 @@ final class Pool
                 if ($connection['config'] === $config) {
                     if (isset($connection['connection'])) {
                         self::$active_connection = self::$pool[$key]['connection'];
+
                         return self::$pool[$key]['connection'];
                     }
                     $id = $key;
@@ -78,7 +83,7 @@ final class Pool
                         'options' => $config->getOptions(),
                     ];
                     if ($try === $max_tries) {
-                        self::$pool[$id]['connection'] = NULL;
+                        self::$pool[$id]['connection'] = null;
                         if ($throw) {
                             throw new \PDOException('Failed to connect to database server with error `'.$exception->getMessage().'`', previous: $exception);
                         }
@@ -86,6 +91,7 @@ final class Pool
                 }
             } while ($try <= $max_tries);
             self::$active_connection = self::$pool[$id]['connection'];
+
             return self::$active_connection;
         }
         if (!empty($id)) {
@@ -93,9 +99,11 @@ final class Pool
                 throw new \UnexpectedValueException('No connection with ID `'.$id.'` found.');
             }
             self::$active_connection = self::$pool[$id]['connection'];
+
             return self::$active_connection;
         }
-        return NULL;
+
+        return null;
     }
 
 
@@ -110,30 +118,49 @@ final class Pool
     private static function setAttributes(string $driver, int|string $id): void
     {
         if ($driver === 'mysql') {
-            if (!self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_IGNORE_SPACE, true) && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_IGNORE_SPACE, true)) {
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_IGNORE_SPACE, true)
+                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_IGNORE_SPACE, true)
+            ) {
                 throw new \PDOException('Failed to set `ATTR_IGNORE_SPACE` to `true`.');
             }
-            if (!self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_DIRECT_QUERY, false) && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_DIRECT_QUERY, false)) {
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_DIRECT_QUERY, false)
+                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_DIRECT_QUERY, false)
+            ) {
                 throw new \PDOException('Failed to set `ATTR_DIRECT_QUERY` to `false`.');
             }
-            if (!self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_USE_BUFFERED_QUERY, true) && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_USE_BUFFERED_QUERY, true)) {
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_USE_BUFFERED_QUERY, true)
+                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_USE_BUFFERED_QUERY, true)
+            ) {
                 throw new \PDOException('Failed to set `ATTR_USE_BUFFERED_QUERY` to `true`.');
             }
         } elseif ($driver === 'sqlsrv') {
-            if (!self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::SQLSRV_ATTR_DIRECT_QUERY, false) && !self::$pool[$id]['connection']->setAttribute(\PDO::SQLSRV_ATTR_DIRECT_QUERY, false)) {
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::SQLSRV_ATTR_DIRECT_QUERY, false)
+                && !self::$pool[$id]['connection']->setAttribute(\PDO::SQLSRV_ATTR_DIRECT_QUERY, false)
+            ) {
                 throw new \PDOException('Failed to set `SQLSRV_ATTR_DIRECT_QUERY` to `false`.');
             }
         }
-        if (!self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_EMULATE_PREPARES, true) && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true)) {
+        if (
+            !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_EMULATE_PREPARES, true)
+            && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true)
+        ) {
             throw new \PDOException('Failed to set `ATTR_EMULATE_PREPARES` to `true`.');
         }
-        if (!self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION) && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION)) {
+        if (
+            !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION)
+            && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION)
+        ) {
             throw new \PDOException('Failed to set `ATTR_ERRMODE` to exception mode.');
         }
     }
 
     /**
      * Check if a PDO attribute is set to respective value in current connection
+     *
      * @param \PDO  $pdo       PDO object
      * @param int   $attribute PDO attribute constant
      * @param mixed $value     Value to compare against
@@ -158,7 +185,7 @@ final class Pool
      *
      * @return void
      */
-    public static function closeConnection(?Connection $config = NULL, ?string $id = NULL): void
+    public static function closeConnection(?Connection $config = null, ?string $id = null): void
     {
         if (!empty($id)) {
             unset(self::$pool[$id]);
@@ -182,13 +209,14 @@ final class Pool
      *
      * @return \PDO|null
      */
-    public static function changeConnection(?Connection $config = NULL, ?string $id = NULL): ?\PDO
+    public static function changeConnection(?Connection $config = null, ?string $id = null): ?\PDO
     {
         return self::openConnection($config, $id);
     }
 
     /**
      * Show connections in the pool
+     *
      * @return array
      */
     public static function showPool(): array
@@ -198,6 +226,7 @@ final class Pool
 
     /**
      * Clean the pool
+     *
      * @return void
      */
     public static function cleanPool(): void
