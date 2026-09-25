@@ -39,11 +39,11 @@ final class Pool
             }
             if (empty(self::$active_connection)) {
                 \reset(self::$pool);
-                if (!empty(self::$pool[\key(self::$pool)]['connection'])) {
-                    self::$active_connection = self::$pool[\key(self::$pool)]['connection'];
-                } else {
+                if (empty(self::$pool[\key(self::$pool)]['connection'])) {
                     throw new \UnexpectedValueException('Failed to connect to database server.');
                 }
+
+                self::$active_connection = self::$pool[\key(self::$pool)]['connection'];
             }
 
             return self::$active_connection;

@@ -143,11 +143,11 @@ final class Connection
      */
     public function setDriver(string $driver = 'mysql'): self
     {
-        if (\in_array($driver, \PDO::getAvailableDrivers(), true)) {
-            $this->driver = $driver;
-        } else {
+        if (!\in_array($driver, \PDO::getAvailableDrivers(), true)) {
             throw new \InvalidArgumentException('Attempted to set unsupported driver.');
         }
+
+        $this->driver = $driver;
 
         return $this;
     }
