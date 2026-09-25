@@ -77,10 +77,10 @@ final class Pool
                 } catch (\Throwable $exception) {
                     self::$errors[$id] = [
                         'code' => $exception->getCode(),
-                        'message' => $exception->getMessage(),
                         'DSN' => $config->getDSN(),
-                        'user' => $config->getUser(),
+                        'message' => $exception->getMessage(),
                         'options' => $config->getOptions(),
+                        'user' => $config->getUser(),
                     ];
                     if ($try === $max_tries) {
                         self::$pool[$id]['connection'] = null;

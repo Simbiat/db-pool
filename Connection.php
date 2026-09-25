@@ -28,11 +28,11 @@ final class Connection
     private string $ssl_mode = 'verify-full';
     private string $custom_string = '';
     private array $pdo_options = [
-        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-        \PDO::ATTR_PERSISTENT => false,
-        \PDO::ATTR_ORACLE_NULLS => \PDO::NULL_NATURAL,
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         \PDO::ATTR_EMULATE_PREPARES => true,
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        \PDO::ATTR_ORACLE_NULLS => \PDO::NULL_NATURAL,
+        \PDO::ATTR_PERSISTENT => false,
     ];
 
     /**
