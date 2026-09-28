@@ -11,9 +11,9 @@ use Pdo\Mysql;
  */
 final class Pool
 {
-    private static array $pool = [];
     private(set) static ?\PDO $active_connection = null;
     private(set) static ?array $errors = null;
+    private static array $pool = [];
 
     /**
      * Open a database connection
@@ -70,7 +70,7 @@ final class Pool
             $try = 0;
             do {
                 // Indicate actual try
-                $try++;
+                ++$try;
                 try {
                     self::$pool[$id]['connection'] = new \PDO($config->getDSN(), $config->getUser(), $config->getPassword(), $config->getOptions());
                     self::setAttributes($config->getDriver(), $id);
@@ -104,58 +104,6 @@ final class Pool
         }
 
         return null;
-    }
-
-
-    /**
-     * Enforce some attributes. I've noticed that some of them do not apply when used during initial creation. The most frequent culprit is EMULATE_PREPARES
-     *
-     * @param string     $driver Database driver
-     * @param int|string $id     Connection ID
-     *
-     * @return void
-     */
-    private static function setAttributes(string $driver, int|string $id): void
-    {
-        if ($driver === 'mysql') {
-            if (
-                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_IGNORE_SPACE, true)
-                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_IGNORE_SPACE, true)
-            ) {
-                throw new \PDOException('Failed to set `ATTR_IGNORE_SPACE` to `true`.');
-            }
-            if (
-                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_DIRECT_QUERY, false)
-                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_DIRECT_QUERY, false)
-            ) {
-                throw new \PDOException('Failed to set `ATTR_DIRECT_QUERY` to `false`.');
-            }
-            if (
-                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_USE_BUFFERED_QUERY, true)
-                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_USE_BUFFERED_QUERY, true)
-            ) {
-                throw new \PDOException('Failed to set `ATTR_USE_BUFFERED_QUERY` to `true`.');
-            }
-        } elseif ($driver === 'sqlsrv') {
-            if (
-                !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::SQLSRV_ATTR_DIRECT_QUERY, false)
-                && !self::$pool[$id]['connection']->setAttribute(\PDO::SQLSRV_ATTR_DIRECT_QUERY, false)
-            ) {
-                throw new \PDOException('Failed to set `SQLSRV_ATTR_DIRECT_QUERY` to `false`.');
-            }
-        }
-        if (
-            !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_EMULATE_PREPARES, true)
-            && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true)
-        ) {
-            throw new \PDOException('Failed to set `ATTR_EMULATE_PREPARES` to `true`.');
-        }
-        if (
-            !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION)
-            && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION)
-        ) {
-            throw new \PDOException('Failed to set `ATTR_ERRMODE` to exception mode.');
-        }
     }
 
     /**
@@ -232,5 +180,56 @@ final class Pool
     public static function cleanPool(): void
     {
         self::$pool = [];
+    }
+
+    /**
+     * Enforce some attributes. I've noticed that some of them do not apply when used during initial creation. The most frequent culprit is EMULATE_PREPARES
+     *
+     * @param string     $driver Database driver
+     * @param int|string $id     Connection ID
+     *
+     * @return void
+     */
+    private static function setAttributes(string $driver, int|string $id): void
+    {
+        if ($driver === 'mysql') {
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_IGNORE_SPACE, true)
+                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_IGNORE_SPACE, true)
+            ) {
+                throw new \PDOException('Failed to set `ATTR_IGNORE_SPACE` to `true`.');
+            }
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_DIRECT_QUERY, false)
+                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_DIRECT_QUERY, false)
+            ) {
+                throw new \PDOException('Failed to set `ATTR_DIRECT_QUERY` to `false`.');
+            }
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], Mysql::ATTR_USE_BUFFERED_QUERY, true)
+                && !self::$pool[$id]['connection']->setAttribute(Mysql::ATTR_USE_BUFFERED_QUERY, true)
+            ) {
+                throw new \PDOException('Failed to set `ATTR_USE_BUFFERED_QUERY` to `true`.');
+            }
+        } elseif ($driver === 'sqlsrv') {
+            if (
+                !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::SQLSRV_ATTR_DIRECT_QUERY, false)
+                && !self::$pool[$id]['connection']->setAttribute(\PDO::SQLSRV_ATTR_DIRECT_QUERY, false)
+            ) {
+                throw new \PDOException('Failed to set `SQLSRV_ATTR_DIRECT_QUERY` to `false`.');
+            }
+        }
+        if (
+            !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_EMULATE_PREPARES, true)
+            && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true)
+        ) {
+            throw new \PDOException('Failed to set `ATTR_EMULATE_PREPARES` to `true`.');
+        }
+        if (
+            !self::checkAttributeValue(self::$pool[$id]['connection'], \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION)
+            && !self::$pool[$id]['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION)
+        ) {
+            throw new \PDOException('Failed to set `ATTR_ERRMODE` to exception mode.');
+        }
     }
 }

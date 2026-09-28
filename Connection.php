@@ -59,7 +59,7 @@ final class Connection
      */
     public function getUser(): string
     {
-        return ($this->user ?? '');
+        return $this->user ?? '';
     }
 
     /**
@@ -96,7 +96,7 @@ final class Connection
             throw new \RuntimeException('Call from non-allowed function or object-type detected. Access denied.');
         }
 
-        return ($this->password ?? '');
+        return $this->password ?? '';
     }
 
     /**
@@ -186,7 +186,11 @@ final class Connection
      */
     public function getDB(): string
     {
-        return ($this->dbname === null || $this->dbname === '' ? '' : 'dbname='.$this->dbname.';');
+        return
+            $this->dbname === null
+            || $this->dbname === ''
+                ? ''
+                : 'dbname='.$this->dbname.';';
     }
 
     /**
@@ -210,7 +214,10 @@ final class Connection
      */
     public function getCharset(): string
     {
-        return (Sanitize::whiteString($this->charset) ? '' : 'charset='.$this->charset.';');
+        return
+            Sanitize::whiteString($this->charset)
+                ? ''
+                : 'charset='.$this->charset.';';
     }
 
     /**
@@ -234,7 +241,10 @@ final class Connection
      */
     public function getAppName(): string
     {
-        return (Sanitize::whiteString($this->app_name) ? '' : 'appname='.$this->app_name.';');
+        return
+            Sanitize::whiteString($this->app_name)
+                ? ''
+                : 'appname='.$this->app_name.';';
     }
 
     /**
@@ -258,7 +268,10 @@ final class Connection
      */
     public function getRole(): string
     {
-        return (Sanitize::whiteString((string) $this->role) ? '' : 'role='.$this->role.';');
+        return
+            Sanitize::whiteString((string) $this->role)
+                ? ''
+                : 'role='.$this->role.';';
     }
 
     /**
@@ -292,7 +305,7 @@ final class Connection
     }
 
     /**
-     * Set SSL mode (for PostgresSQL only)
+     * Set SSL mode (for PostgreSQL only)
      *
      * @param string $ssl_mode
      *
@@ -309,7 +322,7 @@ final class Connection
     }
 
     /**
-     * Get current SSL mode (for PostgresSQL only)
+     * Get current SSL mode (for PostgreSQL only)
      *
      * @return string
      */
