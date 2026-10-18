@@ -7,25 +7,25 @@ namespace Simbiat\Database;
 use Pdo\Mysql;
 
 /**
- * Database connections pool
+ * Database connections pool.
  */
 final class Pool
 {
-    private(set) static ?\PDO $active_connection = null;
-    private(set) static ?array $errors = null;
+    public private(set) static ?\PDO $active_connection = null;
+    public private(set) static ?array $errors = null;
     private static array $pool = [];
 
     /**
-     * Open a database connection
+     * Open a database connection.
      *
-     * @param \Simbiat\Database\Connection|null $config    Database config object to use for the connection
-     * @param int|string|null                   $id        Pool ID, if the connection has already been established, and we want to reuse it
+     * @param null|\Simbiat\Database\Connection $config    Database config object to use for the connection
+     * @param null|int|string                   $id        Pool ID, if the connection has already been established, and we want to reuse it
      * @param int                               $max_tries How many times to attempt connection
      * @param bool                              $throw     Flag indicating whether to throw an exception if we fail to connect
      *
-     * @return \PDO|null
+     * @return null|\PDO
      */
-    public static function openConnection(?Connection $config = null, int|string|null $id = null, int $max_tries = 1, bool $throw = true): ?\PDO
+    public static function openConnection(?Connection $config = null, null|int|string $id = null, int $max_tries = 1, bool $throw = true): ?\PDO
     {
         if ($max_tries < 1) {
             $max_tries = 1;
@@ -50,7 +50,7 @@ final class Pool
         }
         if ($config !== null) {
             // Force 'restricted' options to ensure the identical set of options
-            /** @noinspection UnusedFunctionResultInspection */
+            /* @noinspection UnusedFunctionResultInspection */
             $config->getOptions();
             foreach (self::$pool as $key => $connection) {
                 if ($connection['config'] === $config) {
@@ -71,6 +71,7 @@ final class Pool
             do {
                 // Indicate actual try
                 ++$try;
+
                 try {
                     self::$pool[$id]['connection'] = new \PDO($config->getDSN(), $config->getUser(), $config->getPassword(), $config->getOptions());
                     self::setAttributes($config->getDriver(), $id);
@@ -107,7 +108,7 @@ final class Pool
     }
 
     /**
-     * Check if a PDO attribute is set to respective value in current connection
+     * Check if a PDO attribute is set to respective value in current connection.
      *
      * @param \PDO  $pdo       PDO object
      * @param int   $attribute PDO attribute constant
@@ -126,10 +127,10 @@ final class Pool
     }
 
     /**
-     * Close connection using either connection ID or database config object
+     * Close connection using either connection ID or database config object.
      *
-     * @param \Simbiat\Database\Connection|null $config Database config object
-     * @param string|null                       $id     Connection ID
+     * @param null|\Simbiat\Database\Connection $config Database config object
+     * @param null|string                       $id     Connection ID
      *
      * @return void
      */
@@ -139,7 +140,7 @@ final class Pool
             unset(self::$pool[$id]);
         } elseif ($config !== null) {
             // Force restricted options to ensure the identical set of options
-            /** @noinspection UnusedFunctionResultInspection */
+            /* @noinspection UnusedFunctionResultInspection */
             $config->getOptions();
             foreach (self::$pool as $key => $connection) {
                 if ($connection['config'] === $config) {
@@ -150,12 +151,12 @@ final class Pool
     }
 
     /**
-     * Switch to a different database connection using either connection ID or database config object
+     * Switch to a different database connection using either connection ID or database config object.
      *
-     * @param \Simbiat\Database\Connection|null $config Database config object
-     * @param string|null                       $id     Connection ID
+     * @param null|\Simbiat\Database\Connection $config Database config object
+     * @param null|string                       $id     Connection ID
      *
-     * @return \PDO|null
+     * @return null|\PDO
      */
     public static function changeConnection(?Connection $config = null, ?string $id = null): ?\PDO
     {
@@ -163,7 +164,7 @@ final class Pool
     }
 
     /**
-     * Show connections in the pool
+     * Show connections in the pool.
      *
      * @return array
      */
@@ -173,7 +174,7 @@ final class Pool
     }
 
     /**
-     * Clean the pool
+     * Clean the pool.
      *
      * @return void
      */
@@ -183,7 +184,7 @@ final class Pool
     }
 
     /**
-     * Enforce some attributes. I've noticed that some of them do not apply when used during initial creation. The most frequent culprit is EMULATE_PREPARES
+     * Enforce some attributes. I've noticed that some of them do not apply when used during initial creation. The most frequent culprit is EMULATE_PREPARES.
      *
      * @param string     $driver Database driver
      * @param int|string $id     Connection ID

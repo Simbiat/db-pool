@@ -10,7 +10,7 @@ use Pdo\Mysql;
 use Simbiat\StringHelpers\Sanitize;
 
 /**
- * Database configuration
+ * Database configuration.
  */
 final class Connection
 {
@@ -36,7 +36,17 @@ final class Connection
     ];
 
     /**
-     * Set database user
+     * Prevent properties from showing in var_dump and print_r for additional security.
+     *
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        return [];
+    }
+
+    /**
+     * Set database user.
      *
      * @param string $user
      *
@@ -53,7 +63,7 @@ final class Connection
     }
 
     /**
-     * Get the current database user
+     * Get the current database user.
      *
      * @return string
      */
@@ -63,7 +73,7 @@ final class Connection
     }
 
     /**
-     * Set database password
+     * Set database password.
      *
      * @param string $password
      *
@@ -77,7 +87,7 @@ final class Connection
     }
 
     /**
-     * Get the current password. Access allowed only for the `openConnection` method from `Pool` class
+     * Get the current password. Access allowed only for the `openConnection` method from `Pool` class.
      *
      * @return string
      */
@@ -100,11 +110,11 @@ final class Connection
     }
 
     /**
-     * Set database host
+     * Set database host.
      *
      * @param string      $host   Host IP or DNS name
-     * @param int|null    $port   Host port if not default
-     * @param string|null $socket Host socket, if any
+     * @param null|int    $port   Host port if not default
+     * @param null|string $socket Host socket, if any
      *
      * @return $this
      */
@@ -118,7 +128,7 @@ final class Connection
     }
 
     /**
-     * Get current host setup
+     * Get current host setup.
      *
      * @return string
      */
@@ -135,7 +145,7 @@ final class Connection
     }
 
     /**
-     * Set what PDO driver to use
+     * Set what PDO driver to use.
      *
      * @param string $driver
      *
@@ -153,7 +163,7 @@ final class Connection
     }
 
     /**
-     * Get the current driver
+     * Get the current driver.
      *
      * @return string
      */
@@ -163,7 +173,7 @@ final class Connection
     }
 
     /**
-     * Set database name
+     * Set database name.
      *
      * @param string $dbname
      *
@@ -180,7 +190,7 @@ final class Connection
     }
 
     /**
-     * Get the current database name
+     * Get the current database name.
      *
      * @return string
      */
@@ -208,7 +218,7 @@ final class Connection
     }
 
     /**
-     * Get the current character set
+     * Get the current character set.
      *
      * @return string
      */
@@ -221,7 +231,7 @@ final class Connection
     }
 
     /**
-     * Set the application name (for DB-Lib only)
+     * Set the application name (for DB-Lib only).
      *
      * @param string $app_name
      *
@@ -235,7 +245,7 @@ final class Connection
     }
 
     /**
-     * Get the current application name (for DB-Lib only)
+     * Get the current application name (for DB-Lib only).
      *
      * @return string
      */
@@ -248,9 +258,9 @@ final class Connection
     }
 
     /**
-     * Set role (for Firebird only)
+     * Set role (for Firebird only).
      *
-     * @param string|null $role
+     * @param null|string $role
      *
      * @return $this
      */
@@ -262,7 +272,7 @@ final class Connection
     }
 
     /**
-     * Get the current role (for Firebird only)
+     * Get the current role (for Firebird only).
      *
      * @return string
      */
@@ -275,7 +285,7 @@ final class Connection
     }
 
     /**
-     * Set the dialect (for Firebird only)
+     * Set the dialect (for Firebird only).
      *
      * @param int $dialect
      *
@@ -295,7 +305,7 @@ final class Connection
     }
 
     /**
-     * Get the current dialect (for Firebird only)
+     * Get the current dialect (for Firebird only).
      *
      * @return string
      */
@@ -305,7 +315,7 @@ final class Connection
     }
 
     /**
-     * Set SSL mode (for PostgreSQL only)
+     * Set SSL mode (for PostgreSQL only).
      *
      * @param string $ssl_mode
      *
@@ -313,7 +323,7 @@ final class Connection
      */
     public function setSSLMode(#[ExpectedValues(['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])] string $ssl_mode = 'verify-full'): self
     {
-        if (!\in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])) {
+        if (!\in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'], true)) {
             $ssl_mode = 'verify-full';
         }
         $this->ssl_mode = $ssl_mode;
@@ -322,7 +332,7 @@ final class Connection
     }
 
     /**
-     * Get current SSL mode (for PostgreSQL only)
+     * Get current SSL mode (for PostgreSQL only).
      *
      * @return string
      */
@@ -348,7 +358,7 @@ final class Connection
     }
 
     /**
-     * Get the current custom connection string
+     * Get the current custom connection string.
      *
      * @return string
      */
@@ -358,7 +368,7 @@ final class Connection
     }
 
     /**
-     * Get IBM specific connection string
+     * Get IBM specific connection string.
      *
      * @return string
      */
@@ -373,7 +383,7 @@ final class Connection
     }
 
     /**
-     * Get Informix specific connection string
+     * Get Informix specific connection string.
      *
      * @return string
      */
@@ -405,7 +415,7 @@ final class Connection
     }
 
     /**
-     * Get the database name for ODBC
+     * Get the database name for ODBC.
      *
      * @return string
      */
@@ -415,7 +425,7 @@ final class Connection
     }
 
     /**
-     * Get connection string for MS SQL Server
+     * Get connection string for MS SQL Server.
      *
      * @return string
      */
@@ -425,7 +435,7 @@ final class Connection
     }
 
     /**
-     * Get Data Source Name (DSN) string based on current settings
+     * Get Data Source Name (DSN) string based on current settings.
      *
      * @return string
      */
@@ -456,7 +466,7 @@ final class Connection
     }
 
     /**
-     * Set custom options to use during establishing connection
+     * Set custom options to use during establishing connection.
      *
      * @param int   $option Appropriate `\PDO::*` constant
      * @param mixed $value  Value for the option
@@ -467,10 +477,8 @@ final class Connection
     {
         if (
             \in_array($option, [\PDO::ATTR_ERRMODE, \PDO::ATTR_EMULATE_PREPARES], true)
-            ||
-            ($this->getDriver() === 'sqlsrv' && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY)
-            ||
-            ($this->getDriver() === 'mysql' && \in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], true))
+            || ($this->getDriver() === 'sqlsrv' && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY)
+            || ($this->getDriver() === 'mysql' && \in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], true))
         ) {
             throw new \InvalidArgumentException('Attempted to set restricted attribute.');
         }
@@ -498,15 +506,5 @@ final class Connection
         $this->pdo_options[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
 
         return $this->pdo_options;
-    }
-
-    /**
-     * Prevent properties from showing in var_dump and print_r for additional security
-     *
-     * @return array
-     */
-    public function __debugInfo(): array
-    {
-        return [];
     }
 }
