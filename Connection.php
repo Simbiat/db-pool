@@ -15,18 +15,34 @@ use Simbiat\StringHelpers\Sanitize;
 final class Connection
 {
     private ?string $user = null;
+
     private ?string $password = null;
+
     private string $driver = 'mysql';
+
     private string $host = 'localhost';
+
     private ?int $port = null;
+
     private ?string $socket = null;
+
     private ?string $dbname = null;
+
     private string $charset = 'utf8mb4';
+
     private string $app_name = 'PHP Generic DB-lib';
+
     private ?string $role = null;
+
     private int $dialect = 3;
+
     private string $ssl_mode = 'verify-full';
+
     private string $custom_string = '';
+
+    /**
+     * @var array<int, mixed>
+     */
     private array $pdo_options = [
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         \PDO::ATTR_EMULATE_PREPARES => true,
@@ -57,6 +73,7 @@ final class Connection
         if (Sanitize::whiteString($user)) {
             throw new \InvalidArgumentException('Attempted to set empty user.');
         }
+
         $this->user = $user;
 
         return $this;
@@ -98,10 +115,11 @@ final class Connection
         if (empty($caller[1])) {
             throw new \RuntimeException('Direct call detected. Access denied.');
         }
+
         $caller = $caller[1];
         if (
             $caller['function'] !== 'openConnection'
-            || $caller['class'] !== 'Simbiat\\Database\\Pool'
+            || $caller['class'] !== \Simbiat\Database\Pool::class
         ) {
             throw new \RuntimeException('Call from non-allowed function or object-type detected. Access denied.');
         }
@@ -153,7 +171,7 @@ final class Connection
      */
     public function setDriver(string $driver = 'mysql'): self
     {
-        if (!\in_array($driver, \PDO::getAvailableDrivers(), true)) {
+        if (!\in_array($driver, \PDO::getAvailableDrivers(), strict: true)) {
             throw new \InvalidArgumentException('Attempted to set unsupported driver.');
         }
 
@@ -184,6 +202,7 @@ final class Connection
         if (Sanitize::whiteString($dbname)) {
             throw new \InvalidArgumentException('Attempted to set empty database name.');
         }
+
         $this->dbname = $dbname;
 
         return $this;
@@ -299,6 +318,7 @@ final class Connection
         ) {
             $dialect = 3;
         }
+
         $this->dialect = $dialect;
 
         return $this;
@@ -323,9 +343,10 @@ final class Connection
      */
     public function setSSLMode(#[ExpectedValues(['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])] string $ssl_mode = 'verify-full'): self
     {
-        if (!\in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'], true)) {
+        if (!\in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'], strict: true)) {
             $ssl_mode = 'verify-full';
         }
+
         $this->ssl_mode = $ssl_mode;
 
         return $this;
@@ -405,6 +426,7 @@ final class Connection
         if ($dbname === ':memory:') {
             return $dbname;
         }
+
         // Check if it's a file that exists
         if (\is_file($dbname)) {
             return $dbname;
@@ -441,7 +463,7 @@ final class Connection
      */
     public function getDSN(): string
     {
-        $dsn = match ($this->getDriver()) {
+        $dsn = match ($this->driver) {
             'mysql' => 'mysql:'.$this->getHost().$this->getDB().$this->getCharset(),
             'cubrid' => 'cubrid:'.$this->getHost().$this->getDB(),
             'sybase' => 'sybase:'.$this->getHost().$this->getDB().$this->getCharset().$this->getAppName(),
@@ -459,7 +481,7 @@ final class Connection
         };
         if ($dsn) {
             // Return DSN while adding any custom values
-            return $dsn.$this->getCustomString();
+            return $dsn.$this->custom_string;
         }
 
         throw new \UnexpectedValueException('Unsupported driver.');
@@ -476,12 +498,13 @@ final class Connection
     public function setOption(int $option, mixed $value): self
     {
         if (
-            \in_array($option, [\PDO::ATTR_ERRMODE, \PDO::ATTR_EMULATE_PREPARES], true)
-            || ($this->getDriver() === 'sqlsrv' && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY)
-            || ($this->getDriver() === 'mysql' && \in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], true))
+            \in_array($option, [\PDO::ATTR_ERRMODE, \PDO::ATTR_EMULATE_PREPARES], strict: true)
+            || ($this->driver === 'sqlsrv' && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY)
+            || ($this->driver === 'mysql' && \in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], strict: true))
         ) {
             throw new \InvalidArgumentException('Attempted to set restricted attribute.');
         }
+
         $this->pdo_options[$option] = $value;
 
         return $this;
@@ -494,14 +517,15 @@ final class Connection
      */
     public function getOptions(): array
     {
-        if ($this->getDriver() === 'mysql') {
+        if ($this->driver === 'mysql') {
             $this->pdo_options[Mysql::ATTR_MULTI_STATEMENTS] = false;
             $this->pdo_options[Mysql::ATTR_IGNORE_SPACE] = true;
             $this->pdo_options[Mysql::ATTR_DIRECT_QUERY] = false;
             $this->pdo_options[Mysql::ATTR_USE_BUFFERED_QUERY] = true;
-        } elseif ($this->getDriver() === 'sqlsrv') {
+        } elseif ($this->driver === 'sqlsrv') {
             $this->pdo_options[\PDO::SQLSRV_ATTR_DIRECT_QUERY] = false;
         }
+
         $this->pdo_options[\PDO::ATTR_EMULATE_PREPARES] = true;
         $this->pdo_options[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
 
