@@ -57,8 +57,7 @@ final class Pool
 
         if ($config !== null) {
             // Force 'restricted' options to ensure the identical set of options
-            /* @noinspection UnusedFunctionResultInspection */
-            $config->getOptions();
+            (void) $config->getOptions();
             foreach (self::$pool as $key => $connection) {
                 if ($connection['config'] === $config) {
                     if (isset($connection['connection'])) {
@@ -154,10 +153,9 @@ final class Pool
     {
         if (!empty($id)) {
             unset(self::$pool[$id]);
-        } elseif ($config instanceof \Simbiat\Database\Connection) {
+        } elseif ($config !== null) {
             // Force restricted options to ensure the identical set of options
-            /* @noinspection UnusedFunctionResultInspection */
-            $config->getOptions();
+            (void) $config->getOptions();
             foreach (self::$pool as $key => $connection) {
                 if ($connection['config'] === $config) {
                     unset(self::$pool[$key]['connection']);
