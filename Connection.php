@@ -11,34 +11,26 @@ use Simbiat\StringHelpers\Sanitize;
 
 /**
  * Database configuration.
+ *
+ * @api
  */
 final class Connection
 {
-    private ?string $user = null;
+    private string $app_name = 'PHP Generic DB-lib';
 
-    private ?string $password = null;
+    private string $charset = 'utf8mb4';
+
+    private string $custom_string = '';
+
+    private ?string $dbname = null;
+
+    private int $dialect = 3;
 
     private string $driver = 'mysql';
 
     private string $host = 'localhost';
 
-    private ?int $port = null;
-
-    private ?string $socket = null;
-
-    private ?string $dbname = null;
-
-    private string $charset = 'utf8mb4';
-
-    private string $app_name = 'PHP Generic DB-lib';
-
-    private ?string $role = null;
-
-    private int $dialect = 3;
-
-    private string $ssl_mode = 'verify-full';
-
-    private string $custom_string = '';
+    private ?string $password = null;
 
     /**
      * @var array<int, mixed>
@@ -51,6 +43,16 @@ final class Connection
         \PDO::ATTR_PERSISTENT => false,
     ];
 
+    private ?int $port = null;
+
+    private ?string $role = null;
+
+    private ?string $socket = null;
+
+    private string $ssl_mode = 'verify-full';
+
+    private ?string $user = null;
+
     /**
      * Prevent properties from showing in var_dump and print_r for additional security.
      *
@@ -62,150 +64,41 @@ final class Connection
     }
 
     /**
-     * Set database user.
-     *
-     * @param string $user
-     *
-     * @return $this
-     */
-    public function setUser(#[\SensitiveParameter] string $user): self
-    {
-        if (Sanitize::whiteString($user)) {
-            throw new \InvalidArgumentException('Attempted to set empty user.');
-        }
-
-        $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * Get the current database user.
+     * Get the current application name (for DB-Lib only).
      *
      * @return string
      */
-    public function getUser(): string
+    public function getAppName(): string
     {
-        return $this->user ?? '';
+        return
+            Sanitize::whiteString($this->app_name)
+                ? ''
+                : 'appname='.$this->app_name.';';
     }
 
     /**
-     * Set database password.
-     *
-     * @param string $password
-     *
-     * @return $this
-     */
-    public function setPassword(#[\SensitiveParameter] string $password = ''): self
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * Get the current password. Access allowed only for the `openConnection` method from `Pool` class.
+     * Get the current character set.
      *
      * @return string
      */
-    public function getPassword(): string
+    public function getCharset(): string
     {
-        // Restricting direct access to password for additional security
-        $caller = \debug_backtrace();
-        if (empty($caller[1])) {
-            throw new \RuntimeException('Direct call detected. Access denied.');
-        }
-
-        $caller = $caller[1];
-        if (
-            $caller['function'] !== 'openConnection'
-            || $caller['class'] !== \Simbiat\Database\Pool::class
-        ) {
-            throw new \RuntimeException('Call from non-allowed function or object-type detected. Access denied.');
-        }
-
-        return $this->password ?? '';
+        return
+            Sanitize::whiteString($this->charset)
+                ? ''
+                : 'charset='.$this->charset.';';
     }
 
     /**
-     * Set database host.
-     *
-     * @param string      $host   Host IP or DNS name
-     * @param null|int    $port   Host port if not default
-     * @param null|string $socket Host socket, if any
-     *
-     * @return $this
-     */
-    public function setHost(string $host = 'localhost', ?int $port = null, ?string $socket = null): self
-    {
-        $this->host = (Sanitize::whiteString($host) ? 'localhost' : $host);
-        $this->port = ($port === null || $port < 1 || $port > 65535 ? null : $port);
-        $this->socket = $socket;
-
-        return $this;
-    }
-
-    /**
-     * Get current host setup.
+     * Get the current custom connection string.
      *
      * @return string
+     *
+     * @noinspection PhpUnused
      */
-    public function getHost(): string
+    public function getCustomString(): string
     {
-        if (
-            $this->socket === null
-            || $this->socket === ''
-        ) {
-            return 'host='.$this->host.';'.(empty($this->port) ? '' : 'port='.$this->port.';');
-        }
-
-        return 'unix_socket='.$this->socket.';';
-    }
-
-    /**
-     * Set what PDO driver to use.
-     *
-     * @param string $driver
-     *
-     * @return $this
-     */
-    public function setDriver(string $driver = 'mysql'): self
-    {
-        if (!\in_array($driver, \PDO::getAvailableDrivers(), strict: true)) {
-            throw new \InvalidArgumentException('Attempted to set unsupported driver.');
-        }
-
-        $this->driver = $driver;
-
-        return $this;
-    }
-
-    /**
-     * Get the current driver.
-     *
-     * @return string
-     */
-    public function getDriver(): string
-    {
-        return $this->driver;
-    }
-
-    /**
-     * Set database name.
-     *
-     * @param string $dbname
-     *
-     * @return $this
-     */
-    public function setDB(string $dbname): self
-    {
-        if (Sanitize::whiteString($dbname)) {
-            throw new \InvalidArgumentException('Attempted to set empty database name.');
-        }
-
-        $this->dbname = $dbname;
-
-        return $this;
+        return $this->custom_string;
     }
 
     /**
@@ -223,108 +116,6 @@ final class Connection
     }
 
     /**
-     * Set the character set. If an empty string is provided, utf8mb4 will be forced.
-     *
-     * @param string $charset
-     *
-     * @return $this
-     */
-    public function setCharset(string $charset = 'utf8mb4'): self
-    {
-        $this->charset = (Sanitize::whiteString($charset) ? 'utf8mb4' : $charset);
-
-        return $this;
-    }
-
-    /**
-     * Get the current character set.
-     *
-     * @return string
-     */
-    public function getCharset(): string
-    {
-        return
-            Sanitize::whiteString($this->charset)
-                ? ''
-                : 'charset='.$this->charset.';';
-    }
-
-    /**
-     * Set the application name (for DB-Lib only).
-     *
-     * @param string $app_name
-     *
-     * @return $this
-     */
-    public function setAppName(string $app_name = 'PHP Generic DB-lib'): self
-    {
-        $this->app_name = (Sanitize::whiteString($app_name) ? 'PHP Generic DB-lib' : $app_name);
-
-        return $this;
-    }
-
-    /**
-     * Get the current application name (for DB-Lib only).
-     *
-     * @return string
-     */
-    public function getAppName(): string
-    {
-        return
-            Sanitize::whiteString($this->app_name)
-                ? ''
-                : 'appname='.$this->app_name.';';
-    }
-
-    /**
-     * Set role (for Firebird only).
-     *
-     * @param null|string $role
-     *
-     * @return $this
-     */
-    public function setRole(?string $role = null): self
-    {
-        $this->role = (Sanitize::whiteString((string) $role) ? null : $role);
-
-        return $this;
-    }
-
-    /**
-     * Get the current role (for Firebird only).
-     *
-     * @return string
-     */
-    public function getRole(): string
-    {
-        return
-            Sanitize::whiteString((string) $this->role)
-                ? ''
-                : 'role='.$this->role.';';
-    }
-
-    /**
-     * Set the dialect (for Firebird only).
-     *
-     * @param int $dialect
-     *
-     * @return $this
-     */
-    public function setDialect(#[ExpectedValues([1, 3])] int $dialect = 3): self
-    {
-        if (
-            $dialect !== 1
-            && $dialect !== 3
-        ) {
-            $dialect = 3;
-        }
-
-        $this->dialect = $dialect;
-
-        return $this;
-    }
-
-    /**
      * Get the current dialect (for Firebird only).
      *
      * @return string
@@ -335,131 +126,21 @@ final class Connection
     }
 
     /**
-     * Set SSL mode (for PostgreSQL only).
-     *
-     * @param string $ssl_mode
-     *
-     * @return $this
-     */
-    public function setSSLMode(#[ExpectedValues(['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])] string $ssl_mode = 'verify-full'): self
-    {
-        if (!\in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'], strict: true)) {
-            $ssl_mode = 'verify-full';
-        }
-
-        $this->ssl_mode = $ssl_mode;
-
-        return $this;
-    }
-
-    /**
-     * Get current SSL mode (for PostgreSQL only).
+     * Get the current driver.
      *
      * @return string
      */
-    public function getSSLMode(): string
+    public function getDriver(): string
     {
-        return 'ssl_mode='.$this->ssl_mode.';';
-    }
-
-    /**
-     * Set custom connection string. `Password`, `Pass`, `PWD`, `UID`, `User ID`, `User`, `Username` fields will be stripped if present.
-     *
-     * @param string $custom_string
-     *
-     * @return $this
-     */
-    public function setCustomString(string $custom_string): self
-    {
-        // Remove username and password values
-        $custom_string = \preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $custom_string);
-        $this->custom_string = $custom_string;
-
-        return $this;
-    }
-
-    /**
-     * Get the current custom connection string.
-     *
-     * @return string
-     */
-    public function getCustomString(): string
-    {
-        return $this->custom_string;
-    }
-
-    /**
-     * Get IBM specific connection string.
-     *
-     * @return string
-     */
-    public function getIBM(): string
-    {
-        $dbname = $this->getDB();
-        if (\preg_match('/.+\.ini$/ui', $dbname)) {
-            return $dbname;
-        }
-
-        return 'DRIVER={IBM DB2 ODBC DRIVER};DATABASE='.$dbname.';HOSTNAME='.$this->host.';'.(empty($this->port) ? '' : 'PORT='.$this->port.';').'PROTOCOL=TCPIP;';
-    }
-
-    /**
-     * Get Informix specific connection string.
-     *
-     * @return string
-     */
-    public function getInformix(): string
-    {
-        return 'host='.$this->host.';'.(empty($this->port) ? '' : 'service='.$this->port.';').'database='.$this->dbname.';protocol=onsoctcp;EnableScrollableCursors=1;';
-    }
-
-    /**
-     * Get the database name in a way compliant with SQLLite, that is either `:memory`, path to a file (if it exists) or empty string (temporary database).
-     *
-     * @return string
-     */
-    #[Pure(true)]
-    public function getSQLLite(): string
-    {
-        $dbname = $this->getDB();
-        // Check if we are using in-memory DB
-        if ($dbname === ':memory:') {
-            return $dbname;
-        }
-
-        // Check if it's a file that exists
-        if (\is_file($dbname)) {
-            return $dbname;
-        }
-
-        // Assume temporary database
-        return '';
-    }
-
-    /**
-     * Get the database name for ODBC.
-     *
-     * @return string
-     */
-    public function getODBC(): string
-    {
-        return $this->dbname ?? '';
-    }
-
-    /**
-     * Get connection string for MS SQL Server.
-     *
-     * @return string
-     */
-    public function getSQLServer(): string
-    {
-        return 'Server='.$this->host.(empty($this->port) ? '' : ','.$this->port).';Database='.$this->dbname;
+        return $this->driver;
     }
 
     /**
      * Get Data Source Name (DSN) string based on current settings.
      *
      * @return string
+     *
+     * @throws \UnexpectedValueException
      */
     public function getDSN(): string
     {
@@ -488,26 +169,55 @@ final class Connection
     }
 
     /**
-     * Set custom options to use during establishing connection.
+     * Get current host setup.
      *
-     * @param int   $option Appropriate `\PDO::*` constant
-     * @param mixed $value  Value for the option
-     *
-     * @return $this
+     * @return string
      */
-    public function setOption(int $option, mixed $value): self
+    public function getHost(): string
     {
         if (
-            \in_array($option, [\PDO::ATTR_ERRMODE, \PDO::ATTR_EMULATE_PREPARES], strict: true)
-            || ($this->driver === 'sqlsrv' && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY)
-            || ($this->driver === 'mysql' && \in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], strict: true))
+            $this->socket === null
+            || $this->socket === ''
         ) {
-            throw new \InvalidArgumentException('Attempted to set restricted attribute.');
+            return 'host='.$this->host.';'.(empty($this->port) ? '' : 'port='.$this->port.';');
         }
 
-        $this->pdo_options[$option] = $value;
+        return 'unix_socket='.$this->socket.';';
+    }
 
-        return $this;
+    /**
+     * Get IBM specific connection string.
+     *
+     * @return string
+     */
+    public function getIBM(): string
+    {
+        $dbname = $this->getDB();
+        if (\preg_match('/.+\.ini$/ui', $dbname)) {
+            return $dbname;
+        }
+
+        return 'DRIVER={IBM DB2 ODBC DRIVER};DATABASE='.$dbname.';HOSTNAME='.$this->host.';'.(empty($this->port) ? '' : 'PORT='.$this->port.';').'PROTOCOL=TCPIP;';
+    }
+
+    /**
+     * Get Informix specific connection string.
+     *
+     * @return string
+     */
+    public function getInformix(): string
+    {
+        return 'host='.$this->host.';'.(empty($this->port) ? '' : 'service='.$this->port.';').'database='.$this->dbname.';protocol=onsoctcp;EnableScrollableCursors=1;';
+    }
+
+    /**
+     * Get the database name for ODBC.
+     *
+     * @return string
+     */
+    public function getODBC(): string
+    {
+        return $this->dbname ?? '';
     }
 
     /**
@@ -530,5 +240,331 @@ final class Connection
         $this->pdo_options[\PDO::ATTR_ERRMODE] = \PDO::ERRMODE_EXCEPTION;
 
         return $this->pdo_options;
+    }
+
+    /**
+     * Get the current password. Access allowed only for the `openConnection` method from `Pool` class.
+     *
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    public function getPassword(): string
+    {
+        // Restricting direct access to password for additional security
+        $caller = \debug_backtrace();
+        if (empty($caller[1])) {
+            throw new \RuntimeException('Direct call detected. Access denied.');
+        }
+
+        $caller = $caller[1];
+        if (
+            $caller['function'] !== 'openConnection'
+            || $caller['class'] !== Pool::class
+        ) {
+            throw new \RuntimeException('Call from non-allowed function or object-type detected. Access denied.');
+        }
+
+        return $this->password ?? '';
+    }
+
+    /**
+     * Get the current role (for Firebird only).
+     *
+     * @return string
+     */
+    public function getRole(): string
+    {
+        return
+            Sanitize::whiteString((string) $this->role)
+                ? ''
+                : 'role='.$this->role.';';
+    }
+
+    /**
+     * Get the database name in a way compliant with SQLLite, that is either `:memory`, path to a file (if it exists) or empty string (temporary database).
+     *
+     * @return string
+     */
+    #[Pure(true)]
+    public function getSQLLite(): string
+    {
+        $dbname = $this->getDB();
+        // Check if we are using in-memory DB
+        if ($dbname === ':memory:') {
+            return $dbname;
+        }
+
+        // Check if it's a file that exists
+        if (\is_file($dbname)) {
+            return $dbname;
+        }
+
+        // Assume temporary database
+        return '';
+    }
+
+    /**
+     * Get connection string for MS SQL Server.
+     *
+     * @return string
+     */
+    public function getSQLServer(): string
+    {
+        return 'Server='.$this->host.(empty($this->port) ? '' : ','.$this->port).';Database='.$this->dbname;
+    }
+
+    /**
+     * Get current SSL mode (for PostgreSQL only).
+     *
+     * @return string
+     */
+    public function getSSLMode(): string
+    {
+        return 'ssl_mode='.$this->ssl_mode.';';
+    }
+
+    /**
+     * Get the current database user.
+     *
+     * @return string
+     */
+    public function getUser(): string
+    {
+        return $this->user ?? '';
+    }
+
+    /**
+     * Set the application name (for DB-Lib only).
+     *
+     * @param string $app_name
+     *
+     * @return $this
+     *
+     * @noinspection PhpUnused
+     */
+    public function setAppName(string $app_name = 'PHP Generic DB-lib'): self
+    {
+        $this->app_name = (Sanitize::whiteString($app_name) ? 'PHP Generic DB-lib' : $app_name);
+
+        return $this;
+    }
+
+    /**
+     * Set the character set. If an empty string is provided, utf8mb4 will be forced.
+     *
+     * @param string $charset
+     *
+     * @return $this
+     */
+    public function setCharset(string $charset = 'utf8mb4'): self
+    {
+        $this->charset = (Sanitize::whiteString($charset) ? 'utf8mb4' : $charset);
+
+        return $this;
+    }
+
+    /**
+     * Set custom connection string. `Password`, `Pass`, `PWD`, `UID`, `User ID`, `User`, `Username` fields will be stripped if present.
+     *
+     * @param string $custom_string
+     *
+     * @return $this
+     *
+     * @noinspection PhpUnused
+     */
+    public function setCustomString(string $custom_string): self
+    {
+        // Remove username and password values
+        $custom_string = \preg_replace('/(Password|Pass|PWD|UID|User ID|User|Username)=[^;]+;/miu', '', $custom_string);
+        $this->custom_string = $custom_string;
+
+        return $this;
+    }
+
+    /**
+     * Set database name.
+     *
+     * @param string $dbname
+     *
+     * @return $this
+     *
+     * @noinspection PhpUnused
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setDB(string $dbname): self
+    {
+        if (Sanitize::whiteString($dbname)) {
+            throw new \InvalidArgumentException('Attempted to set empty database name.');
+        }
+
+        $this->dbname = $dbname;
+
+        return $this;
+    }
+
+    /**
+     * Set the dialect (for Firebird only).
+     *
+     * @param int $dialect
+     *
+     * @return $this
+     *
+     * @noinspection PhpUnused
+     */
+    public function setDialect(#[ExpectedValues([1, 3])] int $dialect = 3): self
+    {
+        if (
+            $dialect !== 1
+            && $dialect !== 3
+        ) {
+            $dialect = 3;
+        }
+
+        $this->dialect = $dialect;
+
+        return $this;
+    }
+
+    /**
+     * Set what PDO driver to use.
+     *
+     * @param string $driver
+     *
+     * @return $this
+     *
+     * @noinspection PhpUnused
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setDriver(string $driver = 'mysql'): self
+    {
+        if (!\in_array($driver, \PDO::getAvailableDrivers(), strict: true)) {
+            throw new \InvalidArgumentException('Attempted to set unsupported driver.');
+        }
+
+        $this->driver = $driver;
+
+        return $this;
+    }
+
+    /**
+     * Set database host.
+     *
+     * @param string      $host   Host IP or DNS name
+     * @param int|null    $port   Host port if not default
+     * @param string|null $socket Host socket, if any
+     *
+     * @return $this
+     */
+    public function setHost(string $host = 'localhost', ?int $port = null, ?string $socket = null): self
+    {
+        $this->host = (Sanitize::whiteString($host) ? 'localhost' : $host);
+        $this->port = ($port === null || $port < 1 || $port > 65535 ? null : $port);
+        $this->socket = $socket;
+
+        return $this;
+    }
+
+    /**
+     * Set custom options to use during establishing connection.
+     *
+     * @param int   $option Appropriate `\PDO::*` constant
+     * @param mixed $value  Value for the option
+     *
+     * @return $this
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setOption(int $option, mixed $value): self
+    {
+        if (
+            \in_array($option, [\PDO::ATTR_ERRMODE, \PDO::ATTR_EMULATE_PREPARES], strict: true)
+            || (
+                $this->driver === 'sqlsrv'
+                && $option === \PDO::SQLSRV_ATTR_DIRECT_QUERY
+            )
+            || (
+                $this->driver === 'mysql'
+                && \in_array($option, [Mysql::ATTR_MULTI_STATEMENTS, Mysql::ATTR_DIRECT_QUERY, Mysql::ATTR_IGNORE_SPACE, Mysql::ATTR_USE_BUFFERED_QUERY], strict: true)
+            )
+        ) {
+            throw new \InvalidArgumentException('Attempted to set restricted attribute.');
+        }
+
+        $this->pdo_options[$option] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set database password.
+     *
+     * @param string $password
+     *
+     * @return $this
+     */
+    public function setPassword(#[\SensitiveParameter] string $password = ''): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Set role (for Firebird only).
+     *
+     * @param string|null $role
+     *
+     * @return $this
+     *
+     * @noinspection PhpUnused
+     */
+    public function setRole(?string $role = null): self
+    {
+        $this->role = (Sanitize::whiteString((string) $role) ? null : $role);
+
+        return $this;
+    }
+
+    /**
+     * Set SSL mode (for PostgreSQL only).
+     *
+     * @param string $ssl_mode
+     *
+     * @return $this
+     *
+     * @noinspection PhpUnused
+     */
+    public function setSSLMode(#[ExpectedValues(['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'])] string $ssl_mode = 'verify-full'): self
+    {
+        if (!\in_array($ssl_mode, ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'], strict: true)) {
+            $ssl_mode = 'verify-full';
+        }
+
+        $this->ssl_mode = $ssl_mode;
+
+        return $this;
+    }
+
+    /**
+     * Set database user.
+     *
+     * @param string $user
+     *
+     * @return $this
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setUser(#[\SensitiveParameter] string $user): self
+    {
+        if (Sanitize::whiteString($user)) {
+            throw new \InvalidArgumentException('Attempted to set empty user.');
+        }
+
+        $this->user = $user;
+
+        return $this;
     }
 }

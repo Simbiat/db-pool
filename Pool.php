@@ -8,6 +8,8 @@ use Pdo\Mysql;
 
 /**
  * Database connections pool.
+ *
+ * @api
  */
 final class Pool
 {
@@ -18,16 +20,91 @@ final class Pool
     private static array $pool = [];
 
     /**
+     * Switch to a different database connection using either connection ID or database config object.
+     *
+     * @param Connection|null $config Database config object
+     * @param string|null     $id     Connection ID
+     *
+     * @return \PDO|null
+     *
+     * @noinspection PhpUnused
+     *
+     * @throws \PDOException|\UnexpectedValueException
+     */
+    public static function changeConnection(?Connection $config = null, ?string $id = null): ?\PDO
+    {
+        return self::openConnection($config, $id);
+    }
+
+    /**
+     * Check if a PDO attribute is set to respective value in current connection.
+     *
+     * @param \PDO  $pdo       PDO object
+     * @param int   $attribute PDO attribute constant
+     * @param mixed $value     Value to compare against
+     *
+     * @return bool
+     */
+    public static function checkAttributeValue(\PDO $pdo, int $attribute, mixed $value): bool
+    {
+        try {
+            return $pdo->getAttribute($attribute) === $value;
+        } catch (\PDOException) {
+            // Means the attribute is not supported, so we will fail to set it anyway. Consider that it is set to the expected value, though
+            return true;
+        }
+    }
+
+    /**
+     * Clean the pool.
+     *
+     * @return void
+     *
+     * @noinspection PhpUnused
+     */
+    public static function cleanPool(): void
+    {
+        self::$pool = [];
+    }
+
+    /**
+     * Close connection using either connection ID or database config object.
+     *
+     * @param Connection|null $config Database config object
+     * @param string|null     $id     Connection ID
+     *
+     * @return void
+     *
+     * @noinspection PhpUnused
+     */
+    public static function closeConnection(?Connection $config = null, ?string $id = null): void
+    {
+        if (!empty($id)) {
+            unset(self::$pool[$id]);
+        } elseif ($config !== null) {
+            // Force restricted options to ensure the identical set of options
+            (void) $config->getOptions();
+            foreach (self::$pool as $key => $connection) {
+                if ($connection['config'] === $config) {
+                    unset(self::$pool[$key]['connection']);
+                }
+            }
+        }
+    }
+
+    /**
      * Open a database connection.
      *
-     * @param null|\Simbiat\Database\Connection $config    Database config object to use for the connection
-     * @param null|int|string                   $id        Pool ID, if the connection has already been established, and we want to reuse it
-     * @param int                               $max_tries How many times to attempt connection
-     * @param bool                              $throw     Flag indicating whether to throw an exception if we fail to connect
+     * @param Connection|null $config    Database config object to use for the connection
+     * @param int|string|null $id        Pool ID, if the connection has already been established, and we want to reuse it
+     * @param int             $max_tries How many times to attempt connection
+     * @param bool            $throw     Flag indicating whether to throw an exception if we fail to connect
      *
-     * @return null|\PDO
+     * @return \PDO|null
+     *
+     * @throws \PDOException|\UnexpectedValueException
      */
-    public static function openConnection(?Connection $config = null, null|int|string $id = null, int $max_tries = 1, bool $throw = true): ?\PDO
+    public static function openConnection(?Connection $config = null, int|string|null $id = null, int $max_tries = 1, bool $throw = true): ?\PDO
     {
         if ($max_tries < 1) {
             $max_tries = 1;
@@ -45,11 +122,11 @@ final class Pool
             }
 
             if (self::$active_connection === null) {
-                if (empty(array_first(self::$pool)['connection'])) {
+                if (empty(\array_first(self::$pool)['connection'])) {
                     throw new \UnexpectedValueException('Failed to connect to database server.');
                 }
 
-                self::$active_connection = array_first(self::$pool)['connection'];
+                self::$active_connection = \array_first(self::$pool)['connection'];
             }
 
             return self::$active_connection;
@@ -123,78 +200,15 @@ final class Pool
     }
 
     /**
-     * Check if a PDO attribute is set to respective value in current connection.
-     *
-     * @param \PDO  $pdo       PDO object
-     * @param int   $attribute PDO attribute constant
-     * @param mixed $value     Value to compare against
-     *
-     * @return bool
-     */
-    public static function checkAttributeValue(\PDO $pdo, int $attribute, mixed $value): bool
-    {
-        try {
-            return $pdo->getAttribute($attribute) === $value;
-        } catch (\PDOException) {
-            // Means the attribute is not supported, so we will fail to set it anyway. Consider that it is set to the expected value, though
-            return true;
-        }
-    }
-
-    /**
-     * Close connection using either connection ID or database config object.
-     *
-     * @param null|\Simbiat\Database\Connection $config Database config object
-     * @param null|string                       $id     Connection ID
-     *
-     * @return void
-     */
-    public static function closeConnection(?Connection $config = null, ?string $id = null): void
-    {
-        if (!empty($id)) {
-            unset(self::$pool[$id]);
-        } elseif ($config !== null) {
-            // Force restricted options to ensure the identical set of options
-            (void) $config->getOptions();
-            foreach (self::$pool as $key => $connection) {
-                if ($connection['config'] === $config) {
-                    unset(self::$pool[$key]['connection']);
-                }
-            }
-        }
-    }
-
-    /**
-     * Switch to a different database connection using either connection ID or database config object.
-     *
-     * @param null|\Simbiat\Database\Connection $config Database config object
-     * @param null|string                       $id     Connection ID
-     *
-     * @return null|\PDO
-     */
-    public static function changeConnection(?Connection $config = null, ?string $id = null): ?\PDO
-    {
-        return self::openConnection($config, $id);
-    }
-
-    /**
      * Show connections in the pool.
      *
      * @return array
+     *
+     * @noinspection PhpUnused
      */
     public static function showPool(): array
     {
         return self::$pool;
-    }
-
-    /**
-     * Clean the pool.
-     *
-     * @return void
-     */
-    public static function cleanPool(): void
-    {
-        self::$pool = [];
     }
 
     /**
@@ -204,6 +218,8 @@ final class Pool
      * @param int|string $id     Connection ID
      *
      * @return void
+     *
+     * @throws \PDOException
      */
     private static function setAttributes(string $driver, int|string $id): void
     {
